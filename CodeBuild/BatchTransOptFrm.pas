@@ -13,7 +13,7 @@ type
     Label2: TLabel;
     Dest1ComboBox: TComboBox;
     DoExecuteButton: TButton;
-    NextNoPromptCheckBox: TCheckBox;
+    UsedCacheWithZDBCheckBox: TCheckBox;
     procedure FormKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);

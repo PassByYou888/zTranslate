@@ -5,8 +5,8 @@ object BatchTransOptForm: TBatchTransOptForm
   BorderStyle = bsDialog
   BorderWidth = 20
   Caption = 'Translate Options...'
-  ClientHeight = 153
-  ClientWidth = 249
+  ClientHeight = 185
+  ClientWidth = 282
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -29,7 +29,7 @@ object BatchTransOptForm: TBatchTransOptForm
   end
   object Label2: TLabel
     Left = 0
-    Top = 33
+    Top = 57
     Width = 68
     Height = 13
     Caption = 'dest language'
@@ -76,7 +76,7 @@ object BatchTransOptForm: TBatchTransOptForm
   end
   object Dest1ComboBox: TComboBox
     Left = 104
-    Top = 27
+    Top = 51
     Width = 145
     Height = 21
     Style = csDropDownList
@@ -115,20 +115,22 @@ object BatchTransOptForm: TBatchTransOptForm
       'Vietnamese')
   end
   object DoExecuteButton: TButton
-    Left = 64
-    Top = 112
+    Left = 88
+    Top = 144
     Width = 97
     Height = 41
     Caption = 'Execute'
     ModalResult = 1
     TabOrder = 2
   end
-  object NextNoPromptCheckBox: TCheckBox
-    Left = 48
-    Top = 72
-    Width = 177
+  object UsedCacheWithZDBCheckBox: TCheckBox
+    Left = 104
+    Top = 98
+    Width = 178
     Height = 17
-    Caption = 'No prompt with next Time'
+    Caption = 'Used Cache with ZDB'
+    Checked = True
+    State = cbChecked
     TabOrder = 3
   end
 end

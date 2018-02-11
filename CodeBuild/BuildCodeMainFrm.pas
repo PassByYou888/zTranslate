@@ -1,4 +1,4 @@
-unit BuildTextMainFrm;
+unit BuildCodeMainFrm;
 
 interface
 
@@ -15,8 +15,8 @@ uses
   SynEdit, BaiduTranslateClient;
 
 type
-  TPascal2CTMainForm = class(TForm)
-    PageControl1: TPageControl;
+  TBuildCodeMainForm = class(TForm)
+    PageControl: TPageControl;
     FileProjectTabSheet: TTabSheet;
     AddButton: TButton;
     BrowsePathButton: TButton;
@@ -44,6 +44,11 @@ type
     IgnorePascalDirectivesCheckBox: TCheckBox;
     IgnoreCDirectivesCheckBox: TCheckBox;
     StripedToolButton: TButton;
+    OptionsTabSheet: TTabSheet;
+    BaiduTSAddrEdit: TLabeledEdit;
+    BaiduTSPortEdit: TLabeledEdit;
+    OpenBaiduTSButton: TButton;
+    CloseBaiduTSButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure AddButtonClick(Sender: TObject);
@@ -55,6 +60,8 @@ type
     procedure Cstyle_RadioButtonClick(Sender: TObject);
     procedure Pascalstyle_RadioButtonClick(Sender: TObject);
     procedure StripedToolButtonClick(Sender: TObject);
+    procedure OpenBaiduTSButtonClick(Sender: TObject);
+    procedure CloseBaiduTSButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -75,10 +82,11 @@ type
 
     procedure CTEditorReturn_Pascal(tb: TTextTable);
     procedure CTEditorReturn_C(tb: TTextTable);
+    procedure CTEditorReturn_BuildCode(tb: TTextTable);
   end;
 
 var
-  Pascal2CTMainForm: TPascal2CTMainForm;
+  BuildCodeMainForm: TBuildCodeMainForm;
 
 implementation
 
@@ -87,42 +95,56 @@ implementation
 
 uses StrippedContextFrm, LogFrm;
 
-procedure TPascal2CTMainForm.FormCreate(Sender: TObject);
+procedure TBuildCodeMainForm.FormCreate(Sender: TObject);
 var
-  fn: string;
+  fn, pn: string;
 begin
   Table := TTextTable.Create;
   Config := TSectionTextData.Create;
-  fn := TPath.Combine(TPath.GetDocumentsPath, 'Pascal2CT.cfg');
+  fn := umlCombineFileName(TPath.GetDocumentsPath, 'BuildCode.cfg');
   if TFile.Exists(fn) then
     begin
       Config.LoadFromFile(fn);
     end;
   FileListBox.Items.Assign(Config.Names['Files']);
-  OutPathEdit.Text := Config.GetDefaultValue('main', 'output', TPath.GetDocumentsPath);
+
+  pn := umlCombinePath(umlGetFilePath(Application.ExeName), 'Output');
+  umlCreateDirectory(pn);
+
+  OutPathEdit.Text := Config.GetDefaultValue('main', 'output', pn);
   IncludePascalCommentCheckBox.Checked := Config.GetDefaultValue('main', 'PascalComment', IncludePascalCommentCheckBox.Checked);
-  IgnorePascalDirectivesCheckBox.Checked := Config.GetDefaultValue('main', 'Directives', IgnorePascalDirectivesCheckBox.Checked);
+  IgnorePascalDirectivesCheckBox.Checked := Config.GetDefaultValue('main', 'IgnorePascalDirectives', IgnorePascalDirectivesCheckBox.Checked);
   IncludeCCommentCheckBox.Checked := Config.GetDefaultValue('main', 'CComment', IncludeCCommentCheckBox.Checked);
+  IgnoreCDirectivesCheckBox.Checked := Config.GetDefaultValue('main', 'IgnoreCDirectives', IgnoreCDirectivesCheckBox.Checked);
+
+  BaiduTSAddrEdit.Text := Config.GetDefaultValue('main', 'BaiduTSAddr', BaiduTSAddrEdit.Text);
+  BaiduTSPortEdit.Text := Config.GetDefaultValue('main', 'BaiduTSPort', BaiduTSPortEdit.Text);
 end;
 
-procedure TPascal2CTMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TBuildCodeMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   fn: string;
 begin
-  fn := TPath.Combine(TPath.GetDocumentsPath, 'Pascal2CT.cfg');
+  fn := umlCombineFileName(TPath.GetDocumentsPath, 'BuildCode.cfg');
   Config.Names['Files'].Assign(FileListBox.Items);
+
   Config.SetDefaultValue('main', 'output', OutPathEdit.Text);
   Config.SetDefaultValue('main', 'PascalComment', IncludePascalCommentCheckBox.Checked);
-  Config.SetDefaultValue('main', 'Directives', IgnorePascalDirectivesCheckBox.Checked);
+  Config.SetDefaultValue('main', 'IgnorePascalDirectives', IgnorePascalDirectivesCheckBox.Checked);
   Config.SetDefaultValue('main', 'CComment', IncludeCCommentCheckBox.Checked);
+  Config.SetDefaultValue('main', 'IgnoreCDirectives', IgnoreCDirectivesCheckBox.Checked);
+
+  Config.SetDefaultValue('main', 'BaiduTSAddr', BaiduTSAddrEdit.Text);
+  Config.SetDefaultValue('main', 'BaiduTSPort', BaiduTSPortEdit.Text);
   Config.SaveToFile(fn);
 
   Action := caFree;
+
   DisposeObject(Config);
   DisposeObject(Table);
 end;
 
-procedure TPascal2CTMainForm.AddButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.AddButtonClick(Sender: TObject);
 var
   i: integer;
 begin
@@ -134,7 +156,7 @@ begin
     end;
 end;
 
-procedure TPascal2CTMainForm.BuildButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.BuildButtonClick(Sender: TObject);
 var
   i : integer;
   ms: TMemoryStream64;
@@ -159,15 +181,16 @@ begin
   ms := TMemoryStream64.Create;
   Table.SaveToStream(ms);
   ms.Position := 0;
-  StrippedContextForm.OnReturnProc := nil;
+  StrippedContextForm.OnReturnProc := CTEditorReturn_BuildCode;
   StrippedContextForm.PopupParent := Self;
   StrippedContextForm.LoadNewCTFromStream(ms);
-  StrippedContextForm.OnReturnProc := nil;
   StrippedContextForm.Show;
   DisposeObject(ms);
+
+  OpenBaiduTSButtonClick(nil);
 end;
 
-procedure TPascal2CTMainForm.BrowsePathButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.BrowsePathButtonClick(Sender: TObject);
 var
   d: string;
 begin
@@ -176,14 +199,11 @@ begin
       OutPathEdit.Text := d;
 end;
 
-procedure TPascal2CTMainForm.ImportButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.ImportButtonClick(Sender: TObject);
 var
   ms  : TMemoryStream64;
   i, j: integer;
   ns  : TCoreClassStringList;
-  t   : TTextParsing;
-  pPos: PTextPos;
-  p   : PTextTableItem;
 begin
   if not TDirectory.Exists(OutPathEdit.Text) then
     begin
@@ -207,47 +227,28 @@ begin
 
       if umlMultipleMatch(['*.pas', '*.inc'], FileListBox.Items[i]) then
         begin
-          t := TTextParsing.Create(ns.Text, tsPascal);
-
-          for j := 0 to t.ParsingData.Cache.TextData.Count - 1 do
-            begin
-              pPos := t.ParsingData.Cache.TextData[j];
-              p := Table.Search(pPos^.Text);
-              if p <> nil then
-                  pPos^.Text := p^.DefineText;
-            end;
-
-          if IncludePascalCommentCheckBox.Checked then
-            for j := 0 to t.ParsingData.Cache.CommentData.Count - 1 do
-              begin
-                pPos := t.ParsingData.Cache.CommentData[j];
-                if IncludePascalCommentCheckBox.Checked then
-                  begin
-                    p := Table.Search(pPos^.Text);
-                    if p <> nil then
-                        pPos^.Text := p^.DefineText;
-                  end
-                else if not pPos^.Text.Exists('$') then
-                  begin
-                    p := Table.Search(pPos^.Text);
-                    if p <> nil then
-                        pPos^.Text := p^.DefineText;
-                  end;
-              end;
-
-          t.RebuildText;
-          ns.Text := t.TextData.Text;
-          ns.SaveToFile(TPath.Combine(OutPathEdit.Text, TPath.GetFileName(FileListBox.Items[i])), TEncoding.UTF8);
-
-          DisposeObject(t);
+          TranslateCT2_Pascal(ns, Table);
+          ns.SaveToFile(umlCombineFileName(OutPathEdit.Text, umlGetFileName(FileListBox.Items[i])), TEncoding.UTF8);
+        end
+      else if umlMultipleMatch(['*.c', '*.cpp', '*.cc', '*.h', '*.hpp'], FileListBox.Items[i]) then
+        begin
+          TranslateCT2_C(ns, Table);
+          ns.SaveToFile(umlCombineFileName(OutPathEdit.Text, umlGetFileName(FileListBox.Items[i])), TEncoding.UTF8);
         end;
       DisposeObject(ns);
     end;
 
-  MessageDlg(Format('finished!', []), mtInformation, [mbYes], 0);
+  DoStatus('all merge finished!', []);
 end;
 
-procedure TPascal2CTMainForm.PascalcodeForTextStripedToolButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.OpenBaiduTSButtonClick(Sender: TObject);
+begin
+  BaiduTranslateServiceHost := BaiduTSAddrEdit.Text;
+  BaiduTranslateServicePort := umlStrToInt(BaiduTSPortEdit.Text, 0);
+  OpenBaiduTranslate;
+end;
+
+procedure TBuildCodeMainForm.PascalcodeForTextStripedToolButtonClick(Sender: TObject);
 var
   t    : TTextParsing;
   ms   : TMemoryStream64;
@@ -280,32 +281,41 @@ begin
   StrippedContextForm.OnReturnProc := rProc;
   StrippedContextForm.Show;
   DisposeObject(ms);
+
+  OpenBaiduTSButtonClick(nil);
 end;
 
-procedure TPascal2CTMainForm.Pascalstyle_RadioButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.Pascalstyle_RadioButtonClick(Sender: TObject);
 begin
   CodeEdit.Highlighter := SynPasSyn;
 end;
 
-procedure TPascal2CTMainForm.StripedToolButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.StripedToolButtonClick(Sender: TObject);
 begin
   StrippedContextForm.OnReturnProc := nil;
   StrippedContextForm.NewCT;
   StrippedContextForm.PopupParent := Self;
   StrippedContextForm.Show;
+
+  OpenBaiduTSButtonClick(nil);
 end;
 
-procedure TPascal2CTMainForm.ClearButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.ClearButtonClick(Sender: TObject);
 begin
   FileListBox.Clear;
 end;
 
-procedure TPascal2CTMainForm.Cstyle_RadioButtonClick(Sender: TObject);
+procedure TBuildCodeMainForm.CloseBaiduTSButtonClick(Sender: TObject);
+begin
+  CloseBaiduTranslate;
+end;
+
+procedure TBuildCodeMainForm.Cstyle_RadioButtonClick(Sender: TObject);
 begin
   CodeEdit.Highlighter := SynCppSyn;
 end;
 
-function TPascal2CTMainForm.GetPascalUnitInfo(t: TTextParsing; const initPos: integer; var outPos: TTextPos): Boolean;
+function TBuildCodeMainForm.GetPascalUnitInfo(t: TTextParsing; const initPos: integer; var outPos: TTextPos): Boolean;
 var
   cp        : integer;
   ePos      : integer;
@@ -362,7 +372,7 @@ begin
     end;
 end;
 
-procedure TPascal2CTMainForm.BuildPascalSource2CT(unitName: string; tp: TTextParsing; tb: TTextTable);
+procedure TBuildCodeMainForm.BuildPascalSource2CT(unitName: string; tp: TTextParsing; tb: TTextTable);
 var
   j    : integer;
   tPos : TTextPos;
@@ -404,7 +414,7 @@ begin
   DoStatus('Build ct with Pascal Style "%s" string:%d comment:%d', [unitName, sc, cc]);
 end;
 
-procedure TPascal2CTMainForm.BuildPascalSource2CT(fn: string; tb: TTextTable);
+procedure TBuildCodeMainForm.BuildPascalSource2CT(fn: string; tb: TTextTable);
 var
   ns: TCoreClassStringList;
   t : TTextParsing;
@@ -419,7 +429,7 @@ begin
   DisposeObject(ns);
 end;
 
-procedure TPascal2CTMainForm.BuildC_Source2CT(unitName: string; tp: TTextParsing; tb: TTextTable);
+procedure TBuildCodeMainForm.BuildC_Source2CT(unitName: string; tp: TTextParsing; tb: TTextTable);
 var
   j    : integer;
   tPos : TTextPos;
@@ -458,7 +468,7 @@ begin
   DoStatus('Build ct with C Style "%s" string:%d comment:%d', [unitName, sc, cc]);
 end;
 
-procedure TPascal2CTMainForm.BuildC_Source2CT(fn: string; tb: TTextTable);
+procedure TBuildCodeMainForm.BuildC_Source2CT(fn: string; tb: TTextTable);
 var
   ns: TCoreClassStringList;
   t : TTextParsing;
@@ -473,7 +483,7 @@ begin
   DisposeObject(ns);
 end;
 
-procedure TPascal2CTMainForm.TranslateCT2_Pascal(code: TStrings; tb: TTextTable);
+procedure TBuildCodeMainForm.TranslateCT2_Pascal(code: TStrings; tb: TTextTable);
 var
   i, j: integer;
   t   : TTextParsing;
@@ -523,7 +533,7 @@ begin
   DisposeObject(t);
 end;
 
-procedure TPascal2CTMainForm.TranslateCT2_C(code: TStrings; tb: TTextTable);
+procedure TBuildCodeMainForm.TranslateCT2_C(code: TStrings; tb: TTextTable);
 var
   i, j: integer;
   t   : TTextParsing;
@@ -573,7 +583,7 @@ begin
   DisposeObject(t);
 end;
 
-procedure TPascal2CTMainForm.CTEditorReturn_Pascal(tb: TTextTable);
+procedure TBuildCodeMainForm.CTEditorReturn_Pascal(tb: TTextTable);
 var
   tl: integer;
 begin
@@ -582,13 +592,56 @@ begin
   CodeEdit.TopLine := tl;
 end;
 
-procedure TPascal2CTMainForm.CTEditorReturn_C(tb: TTextTable);
+procedure TBuildCodeMainForm.CTEditorReturn_C(tb: TTextTable);
 var
   tl: integer;
 begin
   tl := CodeEdit.TopLine;
   TranslateCT2_C(CodeEdit.Lines, tb);
   CodeEdit.TopLine := tl;
+end;
+
+procedure TBuildCodeMainForm.CTEditorReturn_BuildCode(tb: TTextTable);
+var
+  i, j: integer;
+  ns  : TCoreClassStringList;
+  m64 : TMemoryStream64;
+begin
+  Table.Clear;
+  if MessageDlg('so now,Translate all code?', mtInformation, [mbYes, mbNo], 0) <> mrYes then
+    begin
+      m64 := TMemoryStream64.Create;
+      tb.SaveToStream(m64);
+      m64.Position := 0;
+      Table.LoadFromStream(m64);
+      DisposeObject(m64);
+      exit;
+    end;
+  if not TDirectory.Exists(OutPathEdit.Text) then
+    begin
+      MessageDlg(Format('directory "%s" no exists', [OutPathEdit.Text]), mtError, [mbYes], 0);
+      exit;
+    end;
+
+  for i := 0 to FileListBox.Items.Count - 1 do
+    begin
+      ns := TCoreClassStringList.Create;
+      ns.LoadFromFile(FileListBox.Items[i]);
+
+      if umlMultipleMatch(['*.pas', '*.inc'], FileListBox.Items[i]) then
+        begin
+          TranslateCT2_Pascal(ns, tb);
+          ns.SaveToFile(umlCombineFileName(OutPathEdit.Text, umlGetFileName(FileListBox.Items[i])), TEncoding.UTF8);
+        end
+      else if umlMultipleMatch(['*.c', '*.cpp', '*.cc', '*.h', '*.hpp'], FileListBox.Items[i]) then
+        begin
+          TranslateCT2_C(ns, tb);
+          ns.SaveToFile(umlCombineFileName(OutPathEdit.Text, umlGetFileName(FileListBox.Items[i])), TEncoding.UTF8);
+        end;
+      DisposeObject(ns);
+    end;
+
+  DoStatus('all merge finished!', []);
 end;
 
 end.

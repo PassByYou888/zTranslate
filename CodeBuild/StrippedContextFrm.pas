@@ -12,7 +12,7 @@ uses
 
   TextTable, DataFrameEngine, CoreClasses, ListEngine, DoStatusIO, MemoryStream64,
   UnicodeMixedLib, QuickTranslateFrm, TextParsing, SynHighlighterCpp,
-  SynEditHighlighter, SynHighlighterPas, SynEdit, PascalStrings;
+  SynEditHighlighter, SynHighlighterPas, SynEdit, PascalStrings, LogFrm;
 
 type
   TEditorReturnProc = procedure(tb: TTextTable) of object;
@@ -98,7 +98,7 @@ type
     UsesDest1Action: TAction;
     UsesDest2Action: TAction;
     UsesDest3Action: TAction;
-    BatchTranslateAction: TAction;
+    NoDialogBatchTranslateAction: TAction;
     UsedSourceF11: TMenuItem;
     UsesDest11: TMenuItem;
     UsesDest21: TMenuItem;
@@ -108,6 +108,9 @@ type
     N6: TMenuItem;
     Batchtranslate2: TMenuItem;
     N7: TMenuItem;
+    BatchTranslateAction: TAction;
+    Batchtranslate3: TMenuItem;
+    Batchtranslate4: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -139,7 +142,9 @@ type
     procedure UsesDest2ActionExecute(Sender: TObject);
     procedure UsesDest3ActionExecute(Sender: TObject);
     procedure DefineMemoChange(Sender: TObject);
+    procedure NoDialogBatchTranslateActionExecute(Sender: TObject);
     procedure BatchTranslateActionExecute(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FTextData       : TTextTable;
     FOpenListItm    : TListItem;
@@ -174,7 +179,7 @@ implementation
 {$R *.dfm}
 
 
-uses BatchTransOptFrm, BaiduTranslateClient;
+uses BatchTransOptFrm, BaiduTranslateClient, BuildCodeMainFrm;
 
 procedure TStrippedContextForm.FormCreate(Sender: TObject);
 begin
@@ -187,9 +192,18 @@ begin
   DisposeObject(FTextData);
 end;
 
+procedure TStrippedContextForm.FormShow(Sender: TObject);
+begin
+  LogForm.PopupParent := Self;
+end;
+
 procedure TStrippedContextForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  CloseBaiduTranslate;
+  FTextData.Clear;
+  RefreshTextList(True);
   Action := caHide;
+  LogForm.PopupParent := BuildCodeMainForm;
 end;
 
 procedure TStrippedContextForm.FormCloseQuery(Sender: TObject;
@@ -406,11 +420,25 @@ end;
 
 procedure TStrippedContextForm.ContextListColumnClick(Sender: TObject; Column: TListColumn);
 
-  function CompText(t1, t2: string): Integer; inline;
+  function WasWide(t: PPascalString): Byte;
+  var
+    c: SystemChar;
   begin
-    Result := CompareValue(Length(t1), Length(t2));
+    for c in t^.Buff do
+      if Ord(c) > $FF then
+          exit(1);
+    Result := 0;
+  end;
+
+  function CompText(t1, t2: TPascalString): Integer; inline;
+  begin
+    Result := CompareValue(WasWide(@t1), WasWide(@t2));
     if Result = 0 then
-        Result := CompareText(t1, t2);
+      begin
+        Result := CompareValue(Length(t1), Length(t2));
+        if Result = 0 then
+            Result := CompareText(t1, t2);
+      end;
   end;
 
   function LV_Sort1(lParam1, lParam2, lParamSort: LPARAM): Integer; stdcall;
@@ -813,44 +841,58 @@ begin
         exit(True);
 end;
 
-procedure TStrippedContextForm.BatchTranslateActionExecute(Sender: TObject);
+procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObject);
 type
   PtempRec = ^TtempRec;
 
   TtempRec = record
     p: PTextTableItem;
-    itm: TListItem;
+    itmIndex: Integer;
+    Index: Integer;
   end;
 var
   i : Integer;
   p1: PtempRec;
 begin
-  if (not BatchTransOptForm.NextNoPromptCheckBox.Checked) and (BatchTransOptForm.ShowModal <> mrOk) then
-      exit;
-
   for i := 0 to ContextList.Items.Count - 1 do
     if ContextList.Items[i].Selected then
       begin
         new(p1);
         p1^.p := ContextList.Items[i].Data;
-        p1^.itm := ContextList.Items[i];
+        p1^.itmIndex := ContextList.Items[i].Index;
+        p1^.Index := p1^.p^.Index;
 
-        BaiduTranslate(True, BatchTransOptForm.SourComboBox.ItemIndex, BatchTransOptForm.Dest1ComboBox.ItemIndex,
+        BaiduTranslate(BatchTransOptForm.UsedCacheWithZDBCheckBox.Checked, BatchTransOptForm.SourComboBox.ItemIndex, BatchTransOptForm.Dest1ComboBox.ItemIndex,
           GetOpenEditorOriginText(p1^.p), p1,
           procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
           var
             p2: PtempRec;
+            itm: TListItem;
           begin
             p2 := UserData;
             if Success then
               begin
-                OpenTextEditor(p2^.p, p2^.itm);
-                SetCurrentTranslate(dest);
-                SaveTextEditor;
+                if (FTextData.ExistsIndex(p2^.Index)) and (p2^.itmIndex < ContextList.Items.Count) and
+                  (ContextList.Items[p2^.itmIndex].Data = p2^.p) then
+                  begin
+                    itm := ContextList.Items[p2^.itmIndex];
+                    OpenTextEditor(p2^.p, itm);
+                    SetCurrentTranslate(dest);
+                    SaveTextEditor;
+                    if itm.Selected then
+                        itm.Selected := False;
+                  end;
               end;
             dispose(p2);
           end);
       end;
+end;
+
+procedure TStrippedContextForm.BatchTranslateActionExecute(
+  Sender: TObject);
+begin
+  if BatchTransOptForm.ShowModal = mrOk then
+      NoDialogBatchTranslateAction.Execute;
 end;
 
 function TStrippedContextForm.CategoryIsSelected(c: string): Boolean;

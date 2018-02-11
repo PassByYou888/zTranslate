@@ -97,6 +97,7 @@ object QuickTranslateForm: TQuickTranslateForm
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False
+    OnExit = DoComboBoxClick
   end
   object Dest1Memo: TMemo
     Left = 0
@@ -106,6 +107,7 @@ object QuickTranslateForm: TQuickTranslateForm
     ScrollBars = ssBoth
     TabOrder = 1
     WordWrap = False
+    OnExit = DoComboBoxClick
   end
   object SourComboBox: TComboBox
     Left = 104
@@ -197,6 +199,7 @@ object QuickTranslateForm: TQuickTranslateForm
     ScrollBars = ssBoth
     TabOrder = 4
     WordWrap = False
+    OnExit = DoComboBoxClick
   end
   object Dest2ComboBox: TComboBox
     Left = 104
@@ -247,6 +250,7 @@ object QuickTranslateForm: TQuickTranslateForm
     ScrollBars = ssBoth
     TabOrder = 6
     WordWrap = False
+    OnExit = DoComboBoxClick
   end
   object Dest3ComboBox: TComboBox
     Left = 104
@@ -334,6 +338,7 @@ object QuickTranslateForm: TQuickTranslateForm
     Checked = True
     State = cbChecked
     TabOrder = 12
+    OnClick = DoComboBoxClick
   end
   object FixedDest1Button: TButton
     Left = 606
