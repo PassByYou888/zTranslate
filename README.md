@@ -35,6 +35,9 @@
 [zTranslate编译指南](https://github.com/PassByYou888/zTranslate/Document/zTranslate%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97.pdf)
 
 
+已经编好的可执行文件包
+ https://github.com/PassByYou888/zTranslate/releases/download/2018-2-11/zTranslate.rar
+
 
 ## 使用
 
