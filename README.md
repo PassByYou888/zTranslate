@@ -32,7 +32,7 @@
  https://github.com/PassByYou888/ZServer4D
 
 
-[zTranslate编译指南](https://github.com/PassByYou888/zTranslate/Document/zTranslate%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97.pdf)
+[zTranslate编译指南](https://github.com/PassByYou888/zTranslate/blob/master/Document/zTranslate%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97.pdf)
 
 
 已经编好的可执行文件包
