@@ -1,9 +1,7 @@
-# zTranslate是pascal/c++圈的国际化之手，可以一键国际化，也可以用最廉价外包投入解决项目国际化问题
 
 ## 开源协议
 
 zTranslate遵守Apache2.0协议
-
 
 
 ## 介绍
@@ -41,9 +39,9 @@ zTranslate遵守Apache2.0协议
 
 已经实测完成翻译crossSocket的全部代码，编译通过
 
-** c#工程尚未测试 **
+c#工程尚未测试
 
-** java工程尚未支持 **
+java工程尚未支持
 
 
 
