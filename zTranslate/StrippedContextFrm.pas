@@ -369,57 +369,70 @@ begin
   RefreshTextList(True);
 end;
 
+function cv(const A, B: Integer): Integer; inline;
+begin
+  if A = B then
+      Result := 0
+  else if A < B then
+      Result := -1
+  else
+      Result := 1;
+end;
+
+function WasWide(t: PPascalString): Byte; inline;
+var
+  c: SystemChar;
+begin
+  for c in t^.Buff do
+    if Ord(c) > $FF then
+        exit(1);
+  Result := 0;
+end;
+
+function CompText(t1, t2: TPascalString): Integer; inline;
+begin
+  Result := cv(WasWide(@t1), WasWide(@t2));
+  if Result = 0 then
+    begin
+      Result := cv(Length(t1), Length(t2));
+      if Result = 0 then
+          Result := CompareText(t1, t2);
+    end;
+end;
+
+function LV_Sort1(lParam1, lParam2, lParamSort: LPARAM): Integer; stdcall;
+var
+  itm1, itm2: TListItem;
+begin
+
+  itm1 := TListItem(lParam1);
+  itm2 := TListItem(lParam2);
+  try
+    if lParamSort = 0 then
+        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
+    else if lParamSort = 1 then
+        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
+    else
+        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+  except
+  end;
+end;
+
+function LV_Sort2(lParam2, lParam1, lParamSort: LPARAM): Integer; stdcall;
+var
+  itm1, itm2: TListItem;
+begin
+  itm1 := TListItem(lParam1);
+  itm2 := TListItem(lParam2);
+  if lParamSort = 0 then
+      Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
+  else if lParamSort = 1 then
+      Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
+  else
+      Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+end;
+
 procedure TStrippedContextForm.ContextListColumnClick(Sender: TObject; Column: TListColumn);
-
-  function WasWide(t: PPascalString): Byte;
-  var
-    c: SystemChar;
-  begin
-    for c in t^.Buff do
-      if Ord(c) > $FF then
-          exit(1);
-    Result := 0;
-  end;
-
-  function CompText(t1, t2: TPascalString): Integer; inline;
-  begin
-    Result := CompareValue(WasWide(@t1), WasWide(@t2));
-    if Result = 0 then
-      begin
-        Result := CompareValue(Length(t1), Length(t2));
-        if Result = 0 then
-            Result := CompareText(t1, t2);
-      end;
-  end;
-
-  function LV_Sort1(lParam1, lParam2, lParamSort: LPARAM): Integer; stdcall;
-  var
-    itm1, itm2: TListItem;
-  begin
-    itm1 := TListItem(lParam1);
-    itm2 := TListItem(lParam2);
-    if lParamSort = 0 then
-        Result := CompareValue(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
-    else if lParamSort = 1 then
-        Result := CompareValue(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
-    else
-        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
-  end;
-
-  function LV_Sort2(lParam2, lParam1, lParamSort: LPARAM): Integer; stdcall;
-  var
-    itm1, itm2: TListItem;
-  begin
-    itm1 := TListItem(lParam1);
-    itm2 := TListItem(lParam2);
-    if lParamSort = 0 then
-        Result := CompareValue(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
-    else if lParamSort = 1 then
-        Result := CompareValue(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
-    else
-        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
-  end;
-
 var
   i: Integer;
 begin
