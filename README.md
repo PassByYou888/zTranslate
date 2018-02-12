@@ -69,7 +69,7 @@ zTranslate的所有介绍，帮助文档，只支持中文
 已经编好的可执行文件包
  https://github.com/PassByYou888/zTranslate/releases
 
-
+ 
 ## 使用
 
 [国际化开源项目的操作指南](https://github.com/PassByYou888/zTranslate/blob/master/Document/%E4%BD%BF%E7%94%A8zTranslate%E5%B0%86%E6%9C%AC%E5%9C%9F%E9%A1%B9%E7%9B%AE%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%8D%A2%E4%B8%BA%E5%9B%BD%E9%99%85%E9%A1%B9%E7%9B%AE.pdf)
