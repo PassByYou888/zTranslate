@@ -1,13 +1,19 @@
 # zTranslate是一套可以将源代码中的备注以及字符串自动翻译成各国语言的工具
 
+## 开源协议
+
+zTranslate遵守Apache2.0协议
+
+
+
 
 ## 介绍
 
+支持Delphi的FMX文本内容自动国际化，支持.dfm,.fmx
+
 支持Pascal源码自动国际化,支持.pas,.inc,.dpr
 
-支持c源码自动国际化,支持.c,.cpp,.h,.hpp
-
-支持纯文本内容自动国际化
+支持c源码自动国际化,支持.c,.cpp,.cc,.cs,.h,.hpp
 
 支持自动化校对
 
@@ -22,7 +28,6 @@
 完整的zDB数据库支持系统，能最小化使用百度翻译api频率，能充分节约成本开销
 
 完整的zDB远程更新系统，对百度翻译质量不满意，可以自行修改，支持一键存储和提取
-
 
 
 
@@ -50,9 +55,27 @@
 如果具体中发现有问题，可加qq群互助，qq群:490269542
 
 
+## 更新说明
 
-## 开源协议
-zTranslate遵守Apache2.0协议
+### 2018-2-12 
+
+
+新增delphi/dfm/fmx支持
+
+修复quick Translate中的fixed不更新cache服务器的问题
+
+
+![关于](https://github.com/PassByYou888/zTranslate/blob/master/1.jpg)
+
+
+![DFM校对](https://github.com/PassByYou888/zTranslate/blob/master/2.jpg)
+
+
+![c语言支持,shader代码](https://github.com/PassByYou888/zTranslate/blob/master/3.jpg)
+
+
+![c语言翻译校对](https://github.com/PassByYou888/zTranslate/blob/master/4.jpg)
+
 
 
 ## 特别说明
@@ -61,7 +84,3 @@ zTranslate遵守Apache2.0协议
 
 https://github.com/zhaoyipeng/DelphiTextTranslate
 
-
-作者QQ 600585
-
-2018-2-11
