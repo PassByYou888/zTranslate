@@ -64,15 +64,17 @@ zTranslate遵守Apache2.0协议
 
 修复quick Translate中的fixed不更新cache服务器的问题
 
-
-![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
-
+- ** DFM/FMX格式翻译支持 **
 ![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
 
+- ** c/shaer/cpp/c#格式翻译支持 **
 ![3](https://github.com/PassByYou888/zTranslate/raw/master/3.JPG)
 
+- ** c/shaer/cpp/c#校对 **
 ![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
 
+** 关于 **
+![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
 
 
 ## 特别说明
