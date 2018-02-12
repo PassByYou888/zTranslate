@@ -65,13 +65,13 @@ zTranslate遵守Apache2.0协议
 修复quick Translate中的fixed不更新cache服务器的问题
 
 
-![1](https://github.com/PassByYou888/zTranslate/blob/master/1.jpg)
+![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
 
-![2](https://github.com/PassByYou888/zTranslate/blob/master/2.JPG)
+![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
 
-![3](https://github.com/PassByYou888/zTranslate/blob/master/3.JPG)
+![3](https://github.com/PassByYou888/zTranslate/raw/master/3.JPG)
 
-![4](https://github.com/PassByYou888/zTranslate/blob/master/4.JPG)
+![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
 
 
 
