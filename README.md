@@ -65,16 +65,16 @@ zTranslate遵守Apache2.0协议
 修复quick Translate中的fixed不更新cache服务器的问题
 
 
-![关于](https://github.com/PassByYou888/zTranslate/blob/master/1.jpg)
+![1](https://github.com/PassByYou888/zTranslate/blob/master/1.jpg)
 
 
-![DFM校对](https://github.com/PassByYou888/zTranslate/blob/master/2.jpg)
+!DFM校对[2](https://github.com/PassByYou888/zTranslate/blob/master/2.jpg)
 
 
-![c语言支持,shader代码](https://github.com/PassByYou888/zTranslate/blob/master/3.jpg)
+!c语言支持[3](https://github.com/PassByYou888/zTranslate/blob/master/3.jpg)
 
 
-![c语言翻译校对](https://github.com/PassByYou888/zTranslate/blob/master/4.jpg)
+!c语言翻译校对[4](https://github.com/PassByYou888/zTranslate/blob/master/4.jpg)
 
 
 
