@@ -628,7 +628,11 @@ begin
                     OpenTextEditor(p2^.p, itm);
                     SetCurrentTranslate(dest);
 
-                    ContextList.ClearSelection;
+                    if ContextList.SelCount > 1 then
+                        ContextList.ClearSelection
+                    else if ContextList.SelCount = 1 then
+                        ContextList.Selected.Selected := False;
+
                     itm.Selected := True;
                     itm.MakeVisible(True);
                   end;
