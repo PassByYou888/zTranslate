@@ -8,10 +8,11 @@ uses
   Vcl.FileCtrl, Vcl.ComCtrls,
 
   System.IOUtils,
+  Vcl.Imaging.pngimage,
 
   TextTable, TextDataEngine, CoreClasses, UnicodeMixedLib, TextParsing,
   MemoryStream64, DoStatusIO, PascalStrings, BaiduTranslateClient,
-  Vcl.Imaging.pngimage;
+  CommunicationFramework;
 
 type
   TBuildCodeMainForm = class(TForm)
@@ -102,10 +103,17 @@ implementation
 
 uses StrippedContextFrm, LogFrm;
 
+procedure GlobalProgressBackgroundProc;
+begin
+  application.ProcessMessages;
+end;
+
 procedure TBuildCodeMainForm.FormCreate(Sender: TObject);
 var
   fn, pn: string;
 begin
+  ProgressBackgroundProc := GlobalProgressBackgroundProc;
+
   Config := TSectionTextData.Create;
   fn := umlCombineFileName(TPath.GetDocumentsPath, 'BuildCode.cfg');
   if TFile.Exists(fn) then
@@ -114,7 +122,7 @@ begin
     end;
   FileListBox.Items.Assign(Config.Names['Files']);
 
-  pn := umlCombinePath(umlGetFilePath(Application.ExeName), 'Output');
+  pn := umlCombinePath(umlGetFilePath(application.ExeName), 'Output');
   OutPathEdit.Text := Config.GetDefaultValue('main', 'output', pn);
   umlCreateDirectory(OutPathEdit.Text);
 
@@ -193,7 +201,7 @@ begin
   tb := TTextTable.Create;
   for i := 0 to FileListBox.Items.Count - 1 do
     begin
-      if umlMultipleMatch(['*.pas', '*.inc', '*.dpj'], FileListBox.Items[i]) then
+      if umlMultipleMatch(['*.pas', '*.inc', '*.dpr'], FileListBox.Items[i]) then
           BuildPascalSource2CT(FileListBox.Items[i], tb)
       else if umlMultipleMatch(['*.c', '*.cpp', '*.c', '*.cs', '*.h', '*.hpp'], FileListBox.Items[i]) then
           BuildC_Source2CT(FileListBox.Items[i], tb)
@@ -699,7 +707,7 @@ begin
       ns := TCoreClassStringList.Create;
       ns.LoadFromFile(FileListBox.Items[i]);
 
-      if umlMultipleMatch(['*.pas', '*.inc'], FileListBox.Items[i]) then
+      if umlMultipleMatch(['*.pas', '*.inc', '*.dpr'], FileListBox.Items[i]) then
         begin
           TranslateCT2_Pascal(ns, tb);
           if UsedOriginOutputDirectoryCheckBox.Checked then

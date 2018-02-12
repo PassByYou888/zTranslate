@@ -162,7 +162,7 @@ begin
   while (sour.Len > 0) and (CharIn(sour.Last, [#13, #10])) do
       sour.DeleteLast;
 
-  BaiduTranslate(UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest1ComboBox.ItemIndex,
+  BaiduTranslate(True, UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest1ComboBox.ItemIndex,
     sour, nil, procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
     begin
       if Success then
@@ -180,7 +180,7 @@ begin
           Dest2Label.Caption := 'Finished...';
         end
       else
-          BaiduTranslate(UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest2ComboBox.ItemIndex,
+          BaiduTranslate(True, UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest2ComboBox.ItemIndex,
           sour, nil, procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
           begin
             if Success then
@@ -205,7 +205,7 @@ begin
           Dest3Label.Caption := 'Finished...';
         end
       else
-          BaiduTranslate(UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest3ComboBox.ItemIndex,
+          BaiduTranslate(True, UsedCacheWithZDBCheckBox.Checked, SourComboBox.ItemIndex, Dest3ComboBox.ItemIndex,
           sour, nil, procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
           begin
             if Success then

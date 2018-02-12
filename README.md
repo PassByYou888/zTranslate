@@ -1,9 +1,8 @@
-# zTranslate是一套可以将源代码中的备注以及字符串自动翻译成各国语言的工具
+# zTranslate是pascal/c++圈的国际化之手，可以一键国际化，也可以用最廉价外包投入解决项目国际化问题
 
 ## 开源协议
 
 zTranslate遵守Apache2.0协议
-
 
 
 
@@ -23,11 +22,38 @@ zTranslate遵守Apache2.0协议
 
 支持将翻译内容导出成文本，并且能接口外包人员做国际化翻译
 
-完整纠错系统，不会破坏源代码
+安全纠错系统，不会破坏源代码
 
 完整的zDB数据库支持系统，能最小化使用百度翻译api频率，能充分节约成本开销
 
 完整的zDB远程更新系统，对百度翻译质量不满意，可以自行修改，支持一键存储和提取
+
+
+## c++/c/pascal工程已经全部测试完成
+
+已经实测完成翻译1400万代码行的unreal4.0引擎，编译通过
+
+已经实测完成翻译delphi内置的vcl,fmx的全部代码，编译通过
+
+已经实测完成翻译fpc内置的fcl,lcl的全部代码，编译通过
+
+已经实测完成翻译diocp的全部代码，编译通过
+
+已经实测完成翻译crossSocket的全部代码，编译通过
+
+** c#工程尚未测试 **
+
+** java工程尚未支持 **
+
+
+
+## 核心思路
+
+zTranslate是做来给国内本土开源圈使用的项目，翻译引擎主要借助百度在线翻译，翻译引擎不支持google，但是将来会支持有道
+
+zTranslate非常依赖zServer4D开源工程，从词法到符号处理，再到服务器桥接，全部基于zServer4D做的二开
+
+zTranslate的所有介绍，帮助文档，只支持中文
 
 
 
@@ -41,7 +67,7 @@ zTranslate遵守Apache2.0协议
 
 
 已经编好的可执行文件包
- https://github.com/PassByYou888/zTranslate/releases/download/2018-2-11/zTranslate.rar
+ https://github.com/PassByYou888/zTranslate/releases
 
 
 ## 使用
@@ -57,6 +83,16 @@ zTranslate遵守Apache2.0协议
 
 ## 更新说明
 
+### 2018-2-13
+
+在机翻大工程中，终于可以泡杯茶休息：使用机翻处理大规模工程不会再出现半途任务停止的现象，如果机翻半途任务停止，系统会自动重连，重连以后恢复任务，与手机应用和手游机制一样
+
+在大规模机翻中，使用F12打开的QuickTranslate窗口，可以直接插入翻译队列，不会再发生等待情况
+
+在大规模机翻中，翻译状态条会自动滚屏，黑窗提示会滚出翻译结果
+
+
+
 ### 2018-2-12 
 
 新增delphi/dfm/fmx支持
@@ -68,12 +104,16 @@ zTranslate遵守Apache2.0协议
 
 
 - ** DFM/FMX格式翻译支持 **
-![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
 
-- ** c/shaer/cpp/c#格式翻译支持 **
 ![3](https://github.com/PassByYou888/zTranslate/raw/master/3.JPG)
 
-- ** c/shaer/cpp/c#校对 **
+
+- ** DFM/FMX格式校对工作 **
+
+![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
+
+
+- ** c/shaer/cpp/c#支持 **
 ![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
 
 - ** 关于 **

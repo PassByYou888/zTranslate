@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
   Vcl.Menus, System.Actions, Vcl.ActnList,
-  Vcl.StdCtrls,
+  Vcl.StdCtrls, System.TypInfo,
 
   System.Math,
 
@@ -143,11 +143,12 @@ type
     procedure NoDialogBatchTranslateActionExecute(Sender: TObject);
     procedure BatchTranslateActionExecute(Sender: TObject);
   private
-    FTextData       : TTextTable;
-    FOpenListItm    : TListItem;
-    FOpenPtr        : PTextTableItem;
-    FOpenPtrIsModify: Boolean;
-    FOnReturnProc   : TEditorReturnProc;
+    FTextData        : TTextTable;
+    FOpenListItm     : TListItem;
+    FOpenPtr         : PTextTableItem;
+    FOpenPtrIsModify : Boolean;
+    FOnReturnProc    : TEditorReturnProc;
+    FCategoryHashList: THashObjectList;
 
     function GetOpenEditorOriginText(p: PTextTableItem): umlString;
     function GetOpenEditorDefineText(p: PTextTableItem): umlString;
@@ -163,6 +164,7 @@ type
 
     function ExistsCategory(c: string): Boolean;
     function CategoryIsSelected(c: string): Boolean;
+
     procedure RefreshTextList(rebuild: Boolean);
     procedure Clear;
     property TextData: TTextTable read FTextData;
@@ -183,12 +185,8 @@ uses BatchTransOptFrm, BaiduTranslateClient, zTranslateMainFrm;
 procedure TStrippedContextForm.FormCreate(Sender: TObject);
 begin
   FTextData := TTextTable.Create;
+  FCategoryHashList := THashObjectList.Create(False, 8192);
   FOnReturnProc := nil;
-end;
-
-procedure TStrippedContextForm.FormDestroy(Sender: TObject);
-begin
-  DisposeObject(FTextData);
 end;
 
 procedure TStrippedContextForm.FormShow(Sender: TObject);
@@ -205,12 +203,10 @@ begin
   LogForm.PopupParent := BuildCodeMainForm;
 end;
 
-procedure TStrippedContextForm.FormCloseQuery(Sender: TObject;
-  var CanClose: Boolean);
+procedure TStrippedContextForm.FormDestroy(Sender: TObject);
 begin
-  CanClose := True;
-  if QuickTranslateForm.Visible then
-      QuickTranslateForm.Close;
+  DisposeObject(FCategoryHashList);
+  DisposeObject(FTextData);
 end;
 
 procedure TStrippedContextForm.RefreshActionExecute(Sender: TObject);
@@ -281,20 +277,6 @@ begin
       CategoryList.SelectAll
   else
       ContextList.SelectAll;
-end;
-
-procedure TStrippedContextForm.SetCurrentTranslate(Text: string);
-begin
-  if FOpenPtr = nil then
-      exit;
-  DefineMemo.Text := Text;
-  SaveTextEditor;
-end;
-
-procedure TStrippedContextForm.SetOnReturnProc(const Value: TEditorReturnProc);
-begin
-  FOnReturnProc := Value;
-  EditorReturnAction.Visible := Assigned(FOnReturnProc);
 end;
 
 procedure TStrippedContextForm.InvSelectedActionExecute(Sender: TObject);
@@ -385,36 +367,6 @@ begin
   FTextData.ImportFromTextStream(m64);
   m64.free;
   RefreshTextList(True);
-end;
-
-procedure TStrippedContextForm.UndoButtonClick(Sender: TObject);
-begin
-  if FOpenPtr <> nil then
-    begin
-      FOpenPtr^.DefineText := FOpenPtr^.OriginText;
-      FOpenPtr^.Picked := False;
-      SaveTextEditor;
-    end;
-end;
-
-procedure TStrippedContextForm.UsesDest1ActionExecute(Sender: TObject);
-begin
-  QuickTranslateForm.UsedDest1ButtonClick(nil);
-end;
-
-procedure TStrippedContextForm.UsesDest2ActionExecute(Sender: TObject);
-begin
-  QuickTranslateForm.UsedDest2ButtonClick(nil);
-end;
-
-procedure TStrippedContextForm.UsesDest3ActionExecute(Sender: TObject);
-begin
-  QuickTranslateForm.UsedDest3ButtonClick(nil);
-end;
-
-procedure TStrippedContextForm.UsesSourActionExecute(Sender: TObject);
-begin
-  QuickTranslateForm.UsedSourButtonClick(nil);
 end;
 
 procedure TStrippedContextForm.ContextListColumnClick(Sender: TObject; Column: TListColumn);
@@ -508,14 +460,10 @@ begin
     end;
 end;
 
-procedure TStrippedContextForm.DefineMemoChange(Sender: TObject);
-begin
-  FOpenPtrIsModify := True;
-end;
-
 procedure TStrippedContextForm.CategoryListItemChecked(Sender: TObject; Item: TListItem);
 begin
-  RefreshTextList(False);
+  DoStatus('F5 refresh...');
+  // RefreshTextList(False);
 end;
 
 procedure TStrippedContextForm.FilterEditChange(Sender: TObject);
@@ -551,6 +499,137 @@ begin
       QuickTranslateForm.Show;
     end;
   Activate;
+end;
+
+procedure TStrippedContextForm.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  CanClose := True;
+  if QuickTranslateForm.Visible then
+      QuickTranslateForm.Close;
+end;
+
+procedure TStrippedContextForm.EditorReturnActionExecute(Sender: TObject);
+var
+  i : Integer;
+  tb: TTextTable;
+begin
+  CloseBaiduTranslate;
+
+  tb := TTextTable.Create;
+  for i := 0 to FTextData.Count - 1 do
+    if FTextData[i]^.Picked then
+        tb.AddCopy(FTextData[i]^);
+
+  if Assigned(FOnReturnProc) then
+    begin
+      try
+          FOnReturnProc(tb);
+      except
+      end;
+    end;
+
+  DisposeObject(tb);
+
+  Close;
+end;
+
+procedure TStrippedContextForm.SaveTextButtonClick(Sender: TObject);
+begin
+  SaveTextEditor;
+end;
+
+procedure TStrippedContextForm.UndoButtonClick(Sender: TObject);
+begin
+  if FOpenPtr <> nil then
+    begin
+      FOpenPtr^.DefineText := FOpenPtr^.OriginText;
+      FOpenPtr^.Picked := False;
+      SaveTextEditor;
+    end;
+end;
+
+procedure TStrippedContextForm.UsesSourActionExecute(Sender: TObject);
+begin
+  QuickTranslateForm.UsedSourButtonClick(nil);
+end;
+
+procedure TStrippedContextForm.UsesDest1ActionExecute(Sender: TObject);
+begin
+  QuickTranslateForm.UsedDest1ButtonClick(nil);
+end;
+
+procedure TStrippedContextForm.UsesDest2ActionExecute(Sender: TObject);
+begin
+  QuickTranslateForm.UsedDest2ButtonClick(nil);
+end;
+
+procedure TStrippedContextForm.UsesDest3ActionExecute(Sender: TObject);
+begin
+  QuickTranslateForm.UsedDest3ButtonClick(nil);
+end;
+
+procedure TStrippedContextForm.DefineMemoChange(Sender: TObject);
+begin
+  FOpenPtrIsModify := True;
+end;
+
+procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObject);
+type
+  PtempRec = ^TtempRec;
+
+  TtempRec = record
+    p: PTextTableItem;
+    itmIndex: Integer;
+    Index: Integer;
+  end;
+var
+  i : Integer;
+  p1: PtempRec;
+begin
+  CloseBaiduTranslate;
+
+  for i := 0 to ContextList.Items.Count - 1 do
+    if ContextList.Items[i].Selected then
+      begin
+        new(p1);
+        p1^.p := ContextList.Items[i].Data;
+        p1^.itmIndex := ContextList.Items[i].Index;
+        p1^.Index := p1^.p^.Index;
+
+        BaiduTranslate(False, BatchTransOptForm.UsedCacheWithZDBCheckBox.Checked,
+          BatchTransOptForm.SourComboBox.ItemIndex, BatchTransOptForm.Dest1ComboBox.ItemIndex,
+          GetOpenEditorOriginText(p1^.p), p1,
+          procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
+          var
+            p2: PtempRec;
+            itm: TListItem;
+          begin
+            p2 := UserData;
+            if Success then
+              begin
+                if (FTextData.ExistsIndex(p2^.Index)) and (p2^.itmIndex < ContextList.Items.Count) and
+                  (ContextList.Items[p2^.itmIndex].Data = p2^.p) then
+                  begin
+                    itm := ContextList.Items[p2^.itmIndex];
+                    OpenTextEditor(p2^.p, itm);
+                    SetCurrentTranslate(dest);
+
+                    ContextList.ClearSelection;
+                    itm.Selected := True;
+                    itm.MakeVisible(True);
+                  end;
+              end;
+            dispose(p2);
+          end);
+      end;
+end;
+
+procedure TStrippedContextForm.BatchTranslateActionExecute(
+  Sender: TObject);
+begin
+  if BatchTransOptForm.ShowModal = mrOk then
+      NoDialogBatchTranslateAction.Execute;
 end;
 
 function TStrippedContextForm.GetOpenEditorOriginText(p: PTextTableItem): umlString;
@@ -601,11 +680,6 @@ begin
   CodeEdit.Text := Format('//Origin:' + #13#10 + '%s' + #13#10#13#10 + '//Defined:' + #13#10 + '%s', [FOpenPtr^.OriginText, FOpenPtr^.DefineText]);
 end;
 
-procedure TStrippedContextForm.SaveTextButtonClick(Sender: TObject);
-begin
-  SaveTextEditor;
-end;
-
 procedure TStrippedContextForm.SaveTextEditor;
 var
   n: umlString;
@@ -636,14 +710,26 @@ begin
       SubItems.Add(Format('%d', [FOpenPtr^.RepCount]));
 
       if ShowOriginContextAction.Checked then
-          SubItems.Add(umlDeleteChar(GetOpenEditorOriginText(FOpenPtr), #13#10))
+          n := umlDeleteChar(GetOpenEditorOriginText(FOpenPtr), #13#10)
       else
-          SubItems.Add(umlDeleteChar(GetOpenEditorDefineText(FOpenPtr), #13#10));
+          n := umlDeleteChar(GetOpenEditorDefineText(FOpenPtr), #13#10);
+
+      case FOpenPtr^.TextStyle of
+        tsPascalComment, tsCComment: SubItems.Add('// ' + n);
+        tsCText, tsPascalText, tsDFMText: SubItems.Add('"' + n + '"');
+        tsNormalText: SubItems.Add(n);
+      end;
 
       Checked := FOpenPtr^.Picked;
     end;
 
   CodeEdit.Text := Format('//Origin:' + #13#10 + '%s' + #13#10#13#10 + '//Defined:' + #13#10 + '%s', [FOpenPtr^.OriginText, FOpenPtr^.DefineText]);
+end;
+
+procedure TStrippedContextForm.SetOnReturnProc(const Value: TEditorReturnProc);
+begin
+  FOnReturnProc := Value;
+  EditorReturnAction.Visible := Assigned(FOnReturnProc);
 end;
 
 procedure TStrippedContextForm.LoadNewCTFromStream(m64: TMemoryStream64);
@@ -658,102 +744,17 @@ begin
   RefreshTextList(True);
 end;
 
-procedure TStrippedContextForm.EditorReturnActionExecute(Sender: TObject);
-var
-  i : Integer;
-  tb: TTextTable;
-begin
-  CloseBaiduTranslate;
-
-  tb := TTextTable.Create;
-  for i := 0 to FTextData.Count - 1 do
-    if FTextData[i]^.Picked then
-        tb.AddCopy(FTextData[i]^);
-
-  if Assigned(FOnReturnProc) then
-    begin
-      try
-          FOnReturnProc(tb);
-      except
-      end;
-    end;
-
-  DisposeObject(tb);
-
-  Close;
-end;
-
 function TStrippedContextForm.ExistsCategory(c: string): Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to CategoryList.Items.Count - 1 do
-    if SameText(c, CategoryList.Items[i].Caption) then
-        exit(True);
-end;
-
-procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObject);
-type
-  PtempRec = ^TtempRec;
-
-  TtempRec = record
-    p: PTextTableItem;
-    itmIndex: Integer;
-    Index: Integer;
-  end;
-var
-  i : Integer;
-  p1: PtempRec;
-begin
-  for i := 0 to ContextList.Items.Count - 1 do
-    if ContextList.Items[i].Selected then
-      begin
-        new(p1);
-        p1^.p := ContextList.Items[i].Data;
-        p1^.itmIndex := ContextList.Items[i].Index;
-        p1^.Index := p1^.p^.Index;
-
-        BaiduTranslate(BatchTransOptForm.UsedCacheWithZDBCheckBox.Checked, BatchTransOptForm.SourComboBox.ItemIndex, BatchTransOptForm.Dest1ComboBox.ItemIndex,
-          GetOpenEditorOriginText(p1^.p), p1,
-          procedure(UserData: Pointer; Success, Cached: Boolean; TranslateTime: TTimeTick; sour, dest: TPascalString)
-          var
-            p2: PtempRec;
-            itm: TListItem;
-          begin
-            p2 := UserData;
-            if Success then
-              begin
-                if (FTextData.ExistsIndex(p2^.Index)) and (p2^.itmIndex < ContextList.Items.Count) and
-                  (ContextList.Items[p2^.itmIndex].Data = p2^.p) then
-                  begin
-                    itm := ContextList.Items[p2^.itmIndex];
-                    OpenTextEditor(p2^.p, itm);
-                    SetCurrentTranslate(dest);
-                    if itm.Selected then
-                        itm.Selected := False;
-                  end;
-              end;
-            dispose(p2);
-          end);
-      end;
-end;
-
-procedure TStrippedContextForm.BatchTranslateActionExecute(
-  Sender: TObject);
-begin
-  if BatchTransOptForm.ShowModal = mrOk then
-      NoDialogBatchTranslateAction.Execute;
+  Result := FCategoryHashList.Exists(c);
 end;
 
 function TStrippedContextForm.CategoryIsSelected(c: string): Boolean;
 var
-  i: Integer;
+  categoryItm: TListItem;
 begin
-  for i := 0 to CategoryList.Items.Count - 1 do
-    if SameText(c, CategoryList.Items[i].Caption) then
-        exit(CategoryList.Items[i].Checked);
-  Result := False;
+  categoryItm := TListItem(FCategoryHashList[c]);
+  Result := (categoryItm <> nil) and (categoryItm.Checked);
 end;
 
 procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
@@ -763,10 +764,12 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
   end;
 
 var
-  i   : Integer;
-  p   : PTextTableItem;
-  itm : TListItem;
-  hlst: THashObjectList;
+  i          : Integer;
+  p          : PTextTableItem;
+  itm        : TListItem;
+  categoryItm: TListItem;
+  hlst       : THashObjectList;
+  n          : umlString;
 begin
   FOpenListItm := nil;
   FOpenPtr := nil;
@@ -782,25 +785,28 @@ begin
 
   ContextList.Items.BeginUpdate;
 
-  hlst := THashObjectList.Create(False);
+  hlst := THashObjectList.Create(False, 32768);
 
   if rebuild then
+    begin
       CategoryList.Items.Clear;
+      FCategoryHashList.Clear;
+    end;
   ContextList.Items.Clear;
   for i := 0 to FTextData.Count - 1 do
     begin
       p := FTextData[i];
 
       if rebuild then
-        if not ExistsCategory(p^.Category) then
+        if not ExistsCategory(umlDeleteChar(p^.Category, #13#10)) then
           begin
-            with CategoryList.Items.Add do
-              begin
-                Caption := umlDeleteChar(p^.Category, #13#10);
-                ImageIndex := -1;
-                StateIndex := -1;
-                Checked := True;
-              end;
+            categoryItm := CategoryList.Items.Add;
+            categoryItm.Caption := umlDeleteChar(p^.Category, #13#10);
+            categoryItm.ImageIndex := -1;
+            categoryItm.StateIndex := -1;
+            categoryItm.Checked := True;
+
+            FCategoryHashList.Add(categoryItm.Caption, categoryItm);
           end;
 
       if CategoryIsSelected(umlDeleteChar(p^.Category, #13#10)) then
@@ -815,9 +821,15 @@ begin
                   SubItems.Add(Format('%d', [p^.RepCount]));
 
                   if ShowOriginContextAction.Checked then
-                      SubItems.Add(umlDeleteChar(GetOpenEditorOriginText(p), #13#10))
+                      n := umlDeleteChar(GetOpenEditorOriginText(p), #13#10)
                   else
-                      SubItems.Add(umlDeleteChar(GetOpenEditorDefineText(p), #13#10));
+                      n := umlDeleteChar(GetOpenEditorDefineText(p), #13#10);
+
+                  case p^.TextStyle of
+                    tsPascalComment, tsCComment: SubItems.Add('// ' + n);
+                    tsCText, tsPascalText, tsDFMText: SubItems.Add('"' + n + '"');
+                    tsNormalText: SubItems.Add(n);
+                  end;
 
                   Checked := p^.Picked;
 
@@ -825,6 +837,7 @@ begin
                   StateIndex := -1;
 
                   Data := p;
+
                 end;
             end;
     end;
@@ -843,6 +856,14 @@ procedure TStrippedContextForm.Clear;
 begin
   CategoryList.Clear;
   ContextList.Clear;
+end;
+
+procedure TStrippedContextForm.SetCurrentTranslate(Text: string);
+begin
+  if FOpenPtr = nil then
+      exit;
+  DefineMemo.Text := Text;
+  SaveTextEditor;
 end;
 
 end.

@@ -1,17 +1,18 @@
 object LogForm: TLogForm
   Left = 0
   Top = 0
-  BorderStyle = bsSizeToolWin
   Caption = 'Log information...'
-  ClientHeight = 251
-  ClientWidth = 628
+  ClientHeight = 118
+  ClientWidth = 638
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ScreenSnap = True
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -20,18 +21,22 @@ object LogForm: TLogForm
   object LogMemo: TMemo
     Left = 0
     Top = 0
-    Width = 628
-    Height = 251
+    Width = 638
+    Height = 118
     Align = alClient
     Color = clBlack
+    DoubleBuffered = True
     Font.Charset = ANSI_CHARSET
     Font.Color = clLime
-    Font.Height = -13
+    Font.Height = -12
     Font.Name = 'Consolas'
     Font.Style = []
+    ParentDoubleBuffered = False
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False
+    ExplicitWidth = 628
+    ExplicitHeight = 249
   end
 end

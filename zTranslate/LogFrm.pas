@@ -31,8 +31,9 @@ implementation
 procedure TLogForm.DoStatusMethod(AText: SystemString; const ID: integer);
 begin
   if not Visible then
-    show;
+      show;
   LogMemo.Lines.Add(AText);
+  Application.ProcessMessages;
 end;
 
 procedure TLogForm.FormClose(Sender: TObject; var Action: TCloseAction);
