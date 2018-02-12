@@ -59,10 +59,13 @@ zTranslate遵守Apache2.0协议
 
 ### 2018-2-12 
 
-
 新增delphi/dfm/fmx支持
 
 修复quick Translate中的fixed不更新cache服务器的问题
+
+全部代码编辑器改用memo来替代原来的synedit
+
+
 
 - ** DFM/FMX格式翻译支持 **
 ![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
