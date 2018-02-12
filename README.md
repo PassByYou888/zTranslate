@@ -41,7 +41,7 @@ zTranslate遵守Apache2.0协议
 
 
 已经编好的可执行文件包
- https://github.com/PassByYou888/zTranslate/releases/download/2018-2-11/zTranslate.rar
+ https://github.com/PassByYou888/zTranslate/releases/download/2018-2-12/release.rar
 
 
 ## 使用
