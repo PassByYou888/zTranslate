@@ -77,6 +77,7 @@ zTranslate遵守Apache2.0协议
 ![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
 
 - ** 关于 **
+
 ![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
 
 
