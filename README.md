@@ -67,21 +67,37 @@ zTranslate的所有介绍，帮助文档，只支持中文
 已经编好的可执行文件包
  https://github.com/PassByYou888/zTranslate/releases
 
- 
-## 使用
+
+
+## 操作
+
 
 [国际化开源项目的操作指南](https://github.com/PassByYou888/zTranslate/blob/master/Document/%E4%BD%BF%E7%94%A8zTranslate%E5%B0%86%E6%9C%AC%E5%9C%9F%E9%A1%B9%E7%9B%AE%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%8D%A2%E4%B8%BA%E5%9B%BD%E9%99%85%E9%A1%B9%E7%9B%AE.pdf)
 
 
-因为作者不爱交网友，请不要直接加作者
+[校对编辑环境中的Origin Filter和Translateion Filter匹配用法](https://github.com/PassByYou888/zTranslate/blob/master/Document/%E6%A0%A1%E5%AF%B9%E7%BC%96%E8%BE%91%E7%8E%AF%E5%A2%83%E4%B8%AD%E7%9A%84Origin%20Filter%E5%92%8CTranslateion%20Filter%E5%8C%B9%E9%85%8D%E7%94%A8%E6%B3%95.pdf)
 
 
-如果具体中发现有问题，可加qq群互助，qq群:490269542
+
+## 使用
+
+在具体使用中发现有问题，可加qq群互助，qq群:490269542
+
+请不要直接加作者
 
 
 ## 更新说明
 
+
 ### 2018-2-13
+
+新增对支持Unix,Linux中无\r(#13)的换行符的代码支持
+
+在校对编辑器中新增匹配表达式
+
+修正校对编辑器中的Undo功能
+
+在zTranslate的首界面，可以直接添加.dpr
 
 在机翻大工程中，终于可以泡杯茶休息：使用机翻处理大规模工程不会再出现半途任务停止的现象，如果机翻半途任务停止，系统会自动重连，重连以后恢复任务，与手机应用和手游机制一样
 
