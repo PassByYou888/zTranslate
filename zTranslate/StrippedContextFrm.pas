@@ -108,6 +108,13 @@ type
     Batchtranslate3: TMenuItem;
     Batchtranslate4: TMenuItem;
     CodeEdit: TMemo;
+    DoFilterButton: TButton;
+    UndoAction: TAction;
+    Undo1: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
+    N11: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -128,13 +135,11 @@ type
     procedure ContextListItemChecked(Sender: TObject; Item: TListItem);
     procedure ContextListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure CategoryListItemChecked(Sender: TObject; Item: TListItem);
-    procedure FilterEditChange(Sender: TObject);
     procedure RestoreTranslationOriginActionExecute(Sender: TObject);
     procedure QuickTranslateActionExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure EditorReturnActionExecute(Sender: TObject);
     procedure SaveTextButtonClick(Sender: TObject);
-    procedure UndoButtonClick(Sender: TObject);
     procedure UsesSourActionExecute(Sender: TObject);
     procedure UsesDest1ActionExecute(Sender: TObject);
     procedure UsesDest2ActionExecute(Sender: TObject);
@@ -142,6 +147,10 @@ type
     procedure DefineMemoChange(Sender: TObject);
     procedure NoDialogBatchTranslateActionExecute(Sender: TObject);
     procedure BatchTranslateActionExecute(Sender: TObject);
+    procedure DoFilterButtonClick(Sender: TObject);
+    procedure FilterEditKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure UndoActionExecute(Sender: TObject);
   private
     FTextData        : TTextTable;
     FOpenListItm     : TListItem;
@@ -479,11 +488,6 @@ begin
   // RefreshTextList(False);
 end;
 
-procedure TStrippedContextForm.FilterEditChange(Sender: TObject);
-begin
-  RefreshTextList(False);
-end;
-
 procedure TStrippedContextForm.RestoreTranslationOriginActionExecute(Sender: TObject);
 var
   i: Integer;
@@ -552,14 +556,17 @@ begin
   SaveTextEditor;
 end;
 
-procedure TStrippedContextForm.UndoButtonClick(Sender: TObject);
+procedure TStrippedContextForm.UndoActionExecute(Sender: TObject);
 begin
-  if FOpenPtr <> nil then
-    begin
-      FOpenPtr^.DefineText := FOpenPtr^.OriginText;
-      FOpenPtr^.Picked := False;
-      SaveTextEditor;
-    end;
+  if ContextList.SelCount = 1 then
+    if FOpenPtr <> nil then
+      begin
+        FOpenPtr^.DefineText := FOpenPtr^.OriginText;
+        FOpenPtr^.Picked := False;
+        OpenTextEditor(FOpenPtr, ContextList.Selected);
+        SaveTextEditor;
+        ContextList.Selected.Checked := False;
+      end;
 end;
 
 procedure TStrippedContextForm.UsesSourActionExecute(Sender: TObject);
@@ -585,6 +592,11 @@ end;
 procedure TStrippedContextForm.DefineMemoChange(Sender: TObject);
 begin
   FOpenPtrIsModify := True;
+end;
+
+procedure TStrippedContextForm.DoFilterButtonClick(Sender: TObject);
+begin
+  RefreshTextList(False);
 end;
 
 procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObject);
@@ -697,6 +709,12 @@ begin
   CodeEdit.Text := Format('//Origin:' + #13#10 + '%s' + #13#10#13#10 + '//Defined:' + #13#10 + '%s', [FOpenPtr^.OriginText, FOpenPtr^.DefineText]);
 end;
 
+procedure TStrippedContextForm.FilterEditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+      DoFilterButtonClick(DoFilterButton);
+end;
+
 procedure TStrippedContextForm.SaveTextEditor;
 var
   n: umlString;
@@ -775,9 +793,59 @@ begin
 end;
 
 procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
-  function Match(s1, s2: umlString): Boolean;
+  function Match(p: PTextTableItem; s1, s2: umlString): Boolean;
   begin
-    Result := (s1.Len = 0) or (s2.GetPos(s1) > 0) or (umlMultipleMatch(s1, s2));
+    Result := True;
+    if s1.Len = 0 then
+        exit;
+
+    if CharIn(s1.First, ['/']) then
+      begin
+        s1.DeleteFirst;
+
+        if (s1.Len > 0) and (CharIn(s1.First, ['/'])) then
+          begin
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
+            exit;
+          end;
+
+        if p^.TextStyle in [tsPascalComment, tsCComment] then
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2)
+        else
+            Result := False;
+      end
+    else if CharIn(s1.First, ['"']) then
+      begin
+        s1.DeleteFirst;
+
+        if (s1.Len > 0) and (CharIn(s1.First, ['"'])) then
+          begin
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
+            exit;
+          end;
+
+        if p^.TextStyle in [tsPascalText, tsCText, tsNormalText, tsDFMText] then
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2)
+        else
+            Result := False;
+      end
+    else if CharIn(s1.First, ['#']) then
+      begin
+        s1.DeleteFirst;
+
+        if (s1.Len > 0) and (CharIn(s1.First, ['#'])) then
+          begin
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
+            exit;
+          end;
+
+        if p^.TextStyle in [tsDFMText] then
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2)
+        else
+            Result := False;
+      end
+    else
+        Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
   end;
 
 var
@@ -791,6 +859,7 @@ begin
   FOpenListItm := nil;
   FOpenPtr := nil;
 
+  CloseBaiduTranslate;
   CodeEdit.Clear;
   DefineMemo.Clear;
   QuickTranslateForm.Close;
@@ -828,7 +897,7 @@ begin
 
       if CategoryIsSelected(umlDeleteChar(p^.Category, #13#10)) then
         if not hlst.Exists(p^.OriginText) then
-          if (Match(OriginFilterEdit.Text, p^.OriginText)) and (Match(DefineFilterEdit.Text, p^.DefineText)) then
+          if (Match(p, OriginFilterEdit.Text, p^.OriginText)) and (Match(p, DefineFilterEdit.Text, p^.DefineText)) then
             begin
               itm := ContextList.Items.Add;
               hlst.Add(p^.OriginText, itm);
