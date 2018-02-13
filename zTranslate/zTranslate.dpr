@@ -8,8 +8,6 @@ uses
   QuickTranslateFrm in 'QuickTranslateFrm.pas' {QuickTranslateForm},
   StrippedContextFrm in 'StrippedContextFrm.pas' {StrippedContextForm};
 
-{$R *.res}
-
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
