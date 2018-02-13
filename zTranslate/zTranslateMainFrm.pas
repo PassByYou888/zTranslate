@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.FileCtrl, Vcl.ComCtrls,
+  Vcl.FileCtrl, Vcl.ComCtrls, Vcl.Clipbrd,
 
   System.IOUtils,
   Vcl.Imaging.pngimage,
@@ -54,6 +54,7 @@ type
     Label4: TLabel;
     DFMstyle_RadioButton: TRadioButton;
     UsedOriginOutputDirectoryCheckBox: TCheckBox;
+    PasteCodeButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure AddButtonClick(Sender: TObject);
@@ -66,6 +67,7 @@ type
     procedure StripedToolButtonClick(Sender: TObject);
     procedure OpenBaiduTSButtonClick(Sender: TObject);
     procedure CloseBaiduTSButtonClick(Sender: TObject);
+    procedure PasteCodeButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -302,6 +304,34 @@ begin
   OpenBaiduTSButtonClick(nil);
 end;
 
+procedure TBuildCodeMainForm.PasteCodeButtonClick(Sender: TObject);
+var
+  t: umlString;
+  n: umlString;
+  c: SystemChar;
+  i: integer;
+begin
+  CodeEdit.Clear;
+  CodeEdit.Lines.BeginUpdate;
+  t.Text := Clipboard.AsText;
+  n := '';
+  i := 1;
+  while i < t.Len do
+    begin
+      c := t[i];
+      inc(i);
+      if c <> #13 then
+          n.Append(c);
+
+      if c = #10 then
+        begin
+          CodeEdit.Lines.Add(n.Text);
+          n := '';
+        end;
+    end;
+  CodeEdit.Lines.EndUpdate;
+end;
+
 procedure TBuildCodeMainForm.StripedToolButtonClick(Sender: TObject);
 begin
   StrippedContextForm.OnReturnProc := nil;
@@ -415,7 +445,7 @@ begin
             inc(cc);
           end;
       end;
-  DoStatus('Build ct with Pascal Style "%s" string:%d comment:%d', [unitName, sc, cc]);
+  DoStatus('Build ct with Pascal "%s" string:%d comment:%d', [unitName, sc, cc]);
 end;
 
 procedure TBuildCodeMainForm.BuildPascalSource2CT(fn: string; tb: TTextTable);
@@ -469,7 +499,7 @@ begin
             inc(cc);
           end;
       end;
-  DoStatus('Build ct with C Style "%s" string:%d comment:%d', [unitName, sc, cc]);
+  DoStatus('Build ct with C "%s" string:%d comment:%d', [unitName, sc, cc]);
 end;
 
 procedure TBuildCodeMainForm.BuildC_Source2CT(fn: string; tb: TTextTable);
@@ -509,7 +539,7 @@ begin
           inc(sc);
         end;
     end;
-  DoStatus('Build ct with delphi Form Style "%s" string:%d', [unitName, sc]);
+  DoStatus('Build ct with delphi Form "%s" string:%d', [unitName, sc]);
 end;
 
 procedure TBuildCodeMainForm.BuildDFMSource2CT(fn: string; tb: TTextTable);
