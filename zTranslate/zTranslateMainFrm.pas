@@ -55,6 +55,7 @@ type
     DFMstyle_RadioButton: TRadioButton;
     UsedOriginOutputDirectoryCheckBox: TCheckBox;
     PasteCodeButton: TButton;
+    copyCodeButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure AddButtonClick(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure OpenBaiduTSButtonClick(Sender: TObject);
     procedure CloseBaiduTSButtonClick(Sender: TObject);
     procedure PasteCodeButtonClick(Sender: TObject);
+    procedure copyCodeButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -350,6 +352,15 @@ end;
 procedure TBuildCodeMainForm.CloseBaiduTSButtonClick(Sender: TObject);
 begin
   CloseBaiduTranslate;
+end;
+
+procedure TBuildCodeMainForm.copyCodeButtonClick(Sender: TObject);
+var
+  n: umlString;
+begin
+  n := CodeEdit.Text;
+  n := umlDeletechar(n, [#10]);
+  Clipboard.AsText := n.Text;
 end;
 
 function TBuildCodeMainForm.GetPascalUnitInfo(t: TTextParsing; const initPos: integer; var outPos: TTextPos): Boolean;
