@@ -115,6 +115,8 @@ type
     N9: TMenuItem;
     N10: TMenuItem;
     N11: TMenuItem;
+    Undo2: TMenuItem;
+    N12: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -148,8 +150,7 @@ type
     procedure NoDialogBatchTranslateActionExecute(Sender: TObject);
     procedure BatchTranslateActionExecute(Sender: TObject);
     procedure DoFilterButtonClick(Sender: TObject);
-    procedure FilterEditKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FilterEditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure UndoActionExecute(Sender: TObject);
   private
     FTextData        : TTextTable;
@@ -557,15 +558,19 @@ begin
 end;
 
 procedure TStrippedContextForm.UndoActionExecute(Sender: TObject);
+var
+  i: Integer;
+  p: PTextTableItem;
 begin
-  if ContextList.SelCount = 1 then
-    if FOpenPtr <> nil then
+  for i := 0 to ContextList.Items.Count - 1 do
+    if ContextList.Items[i].Selected then
       begin
-        FOpenPtr^.DefineText := FOpenPtr^.OriginText;
-        FOpenPtr^.Picked := False;
-        OpenTextEditor(FOpenPtr, ContextList.Selected);
+        p := ContextList.Items[i].Data;
+        p^.DefineText := p^.OriginText;
+        p^.Picked := False;
+        OpenTextEditor(p, ContextList.Items[i]);
         SaveTextEditor;
-        ContextList.Selected.Checked := False;
+        ContextList.Items[i].Checked := False;
       end;
 end;
 
@@ -608,6 +613,16 @@ type
     itmIndex: Integer;
     Index: Integer;
   end;
+
+  function DoAllowed(itm: TListItem): Boolean; inline;
+  begin
+    case BatchTransOptForm.WorkModeRadioGroup.ItemIndex of
+      0: Result := itm.Selected; // selected
+      1: Result := itm.Checked;  // picked
+      else Result := True;
+    end;
+  end;
+
 var
   i : Integer;
   p1: PtempRec;
@@ -615,7 +630,7 @@ begin
   CloseBaiduTranslate;
 
   for i := 0 to ContextList.Items.Count - 1 do
-    if ContextList.Items[i].Selected then
+    if DoAllowed(ContextList.Items[i]) then
       begin
         new(p1);
         p1^.p := ContextList.Items[i].Data;
@@ -793,13 +808,28 @@ begin
 end;
 
 procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
-  function Match(p: PTextTableItem; s1, s2: umlString): Boolean;
+  function Match(p: PTextTableItem; s1, s2: umlString): Boolean; inline;
   begin
     Result := True;
     if s1.Len = 0 then
         exit;
 
-    if CharIn(s1.First, ['/']) then
+    if CharIn(s1.First, [':']) then
+      begin
+        s1.DeleteFirst;
+
+        if (s1.Len > 0) and (CharIn(s1.First, [':'])) then
+          begin
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
+            exit;
+          end;
+
+        if p^.Picked then
+            Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2)
+        else
+            Result := False;
+      end
+    else if CharIn(s1.First, ['/']) then
       begin
         s1.DeleteFirst;
 
@@ -854,7 +884,7 @@ var
   itm        : TListItem;
   categoryItm: TListItem;
   hlst       : THashObjectList;
-  n          : umlString;
+  ori, def, n: umlString;
 begin
   FOpenListItm := nil;
   FOpenPtr := nil;
@@ -897,35 +927,39 @@ begin
 
       if CategoryIsSelected(umlDeleteChar(p^.Category, #13#10)) then
         if not hlst.Exists(p^.OriginText) then
-          if (Match(p, OriginFilterEdit.Text, p^.OriginText)) and (Match(p, DefineFilterEdit.Text, p^.DefineText)) then
-            begin
-              itm := ContextList.Items.Add;
-              hlst.Add(p^.OriginText, itm);
-              with itm do
-                begin
-                  Caption := Format('%d', [p^.Index]);
-                  SubItems.Add(Format('%d', [p^.RepCount]));
+          begin
+            ori := umlDeleteChar(GetOpenEditorOriginText(p), #13#10);
+            def := umlDeleteChar(GetOpenEditorDefineText(p), #13#10);
+            if (Match(p, OriginFilterEdit.Text, ori)) and (Match(p, DefineFilterEdit.Text, def)) then
+              begin
+                itm := ContextList.Items.Add;
+                hlst.Add(p^.OriginText, itm);
+                with itm do
+                  begin
+                    Caption := Format('%d', [p^.Index]);
+                    SubItems.Add(Format('%d', [p^.RepCount]));
 
-                  if ShowOriginContextAction.Checked then
-                      n := umlDeleteChar(GetOpenEditorOriginText(p), #13#10)
-                  else
-                      n := umlDeleteChar(GetOpenEditorDefineText(p), #13#10);
+                    if ShowOriginContextAction.Checked then
+                        n := ori
+                    else
+                        n := def;
 
-                  case p^.TextStyle of
-                    tsPascalComment, tsCComment: SubItems.Add('// ' + n);
-                    tsCText, tsPascalText, tsDFMText: SubItems.Add('"' + n + '"');
-                    tsNormalText: SubItems.Add(n);
+                    case p^.TextStyle of
+                      tsPascalComment, tsCComment: SubItems.Add('// ' + n);
+                      tsCText, tsPascalText, tsDFMText: SubItems.Add('"' + n + '"');
+                      tsNormalText: SubItems.Add(n);
+                    end;
+
+                    Checked := p^.Picked;
+
+                    ImageIndex := -1;
+                    StateIndex := -1;
+
+                    Data := p;
+
                   end;
-
-                  Checked := p^.Picked;
-
-                  ImageIndex := -1;
-                  StateIndex := -1;
-
-                  Data := p;
-
-                end;
-            end;
+              end;
+          end;
     end;
 
   DisposeObject(hlst);
