@@ -5,7 +5,7 @@ object BatchTransOptForm: TBatchTransOptForm
   BorderStyle = bsDialog
   BorderWidth = 20
   Caption = 'Translate Options...'
-  ClientHeight = 185
+  ClientHeight = 297
   ClientWidth = 282
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -115,8 +115,8 @@ object BatchTransOptForm: TBatchTransOptForm
       'Vietnamese')
   end
   object DoExecuteButton: TButton
-    Left = 88
-    Top = 144
+    Left = 80
+    Top = 256
     Width = 97
     Height = 41
     Caption = 'Execute'
@@ -132,5 +132,18 @@ object BatchTransOptForm: TBatchTransOptForm
     Checked = True
     State = cbChecked
     TabOrder = 3
+  end
+  object WorkModeRadioGroup: TRadioGroup
+    Left = 104
+    Top = 136
+    Width = 161
+    Height = 106
+    Caption = 'Batch Mode'
+    ItemIndex = 0
+    Items.Strings = (
+      'Selected'
+      'Picked'
+      'All')
+    TabOrder = 4
   end
 end

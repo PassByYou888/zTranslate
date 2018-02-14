@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
   TBatchTransOptForm = class(TForm)
@@ -14,6 +14,7 @@ type
     Dest1ComboBox: TComboBox;
     DoExecuteButton: TButton;
     UsedCacheWithZDBCheckBox: TCheckBox;
+    WorkModeRadioGroup: TRadioGroup;
     procedure FormKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
