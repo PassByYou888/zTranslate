@@ -315,7 +315,7 @@ var
 begin
   CodeEdit.Clear;
   CodeEdit.Lines.BeginUpdate;
-  t.Text := Clipboard.AsText;
+  t := Clipboard.AsText;
   n := '';
   i := 1;
   while i < t.Len do
