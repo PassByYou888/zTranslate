@@ -5,10 +5,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.FileCtrl, Vcl.ComCtrls, Vcl.Clipbrd,
+  Vcl.FileCtrl, Vcl.ComCtrls,
 
-  System.IOUtils,
-  Vcl.Imaging.pngimage,
+  Vcl.Clipbrd, System.IOUtils, Vcl.Imaging.pngimage,
 
   TextTable, TextDataEngine, CoreClasses, UnicodeMixedLib, TextParsing,
   MemoryStream64, DoStatusIO, PascalStrings, BaiduTranslateClient,
@@ -103,7 +102,6 @@ var
 implementation
 
 {$R *.dfm}
-
 
 uses StrippedContextFrm, LogFrm;
 
@@ -209,7 +207,7 @@ begin
           BuildPascalSource2CT(FileListBox.Items[i], tb)
       else if umlMultipleMatch(['*.c', '*.cpp', '*.c', '*.cs', '*.h', '*.hpp'], FileListBox.Items[i]) then
           BuildC_Source2CT(FileListBox.Items[i], tb)
-      else if umlMultipleMatch(['*.dfm', '*.fmx'], FileListBox.Items[i]) then
+      else if umlMultipleMatch(['*.dfm', '*.fmx', '*.lfm'], FileListBox.Items[i]) then
           BuildDFMSource2CT(FileListBox.Items[i], tb);
     end;
 
@@ -465,7 +463,7 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn);
+  ns.LoadFromFile(fn, TEncoding.UTF8);
   t := TTextParsing.Create(ns.Text, tsPascal);
 
   BuildPascalSource2CT(umlGetFileName(fn), t, tb);
@@ -519,7 +517,7 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn);
+  ns.LoadFromFile(fn, TEncoding.UTF8);
   t := TTextParsing.Create(ns.Text, tsC);
 
   BuildC_Source2CT(umlGetFileName(fn), t, tb);
@@ -559,7 +557,7 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn);
+  ns.LoadFromFile(fn, TEncoding.UTF8);
   t := TTextParsing.Create(ns.Text, tsPascal);
 
   BuildDFMSource2CT(umlGetFileName(fn), t, tb);
@@ -746,7 +744,7 @@ begin
   for i := 0 to FileListBox.Items.Count - 1 do
     begin
       ns := TCoreClassStringList.Create;
-      ns.LoadFromFile(FileListBox.Items[i]);
+      ns.LoadFromFile(FileListBox.Items[i], TEncoding.UTF8);
 
       if umlMultipleMatch(['*.pas', '*.inc', '*.dpr'], FileListBox.Items[i]) then
         begin
@@ -764,7 +762,7 @@ begin
           else
               ns.SaveToFile(umlCombineFileName(OutPathEdit.Text, umlGetFileName(FileListBox.Items[i])), TEncoding.UTF8);
         end
-      else if umlMultipleMatch(['*.dfm', '*.fmx'], FileListBox.Items[i]) then
+      else if umlMultipleMatch(['*.dfm', '*.fmx', '*.lfm'], FileListBox.Items[i]) then
         begin
           TranslateCT2_DFM(ns, tb);
           if UsedOriginOutputDirectoryCheckBox.Checked then
