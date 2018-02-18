@@ -6,9 +6,9 @@ zTranslate遵守Apache2.0协议
 
 ## 介绍
 
-支持Delphi的FMX文本内容自动国际化，支持.dfm,.fmx
+支持Delphi/Lazarus的form文本内容自动国际化，支持.dfm,.fmx,.lfm
 
-支持Pascal源码自动国际化,支持.pas,.inc,.dpr
+支持delphi/fpc源码自动国际化,支持.pas,.inc,.dpr,.pp
 
 支持c源码自动国际化,支持.c,.cpp,.cc,.cs,.h,.hpp
 
