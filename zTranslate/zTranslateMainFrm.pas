@@ -103,6 +103,7 @@ implementation
 
 {$R *.dfm}
 
+
 uses StrippedContextFrm, LogFrm;
 
 procedure GlobalProgressBackgroundProc;
@@ -270,19 +271,19 @@ begin
 
   if Cstyle_RadioButton.Checked then
     begin
-      t := TTextParsing.Create(CodeEdit.Text, tsC);
+      t := TTextParsing.Create(CodeEdit.Text, tsC, nil);
       BuildC_Source2CT('utility.c', t, tb);
       rProc := CTEditorReturn_C;
     end
   else if Pascalstyle_RadioButton.Checked then
     begin
-      t := TTextParsing.Create(CodeEdit.Text, tsPascal);
+      t := TTextParsing.Create(CodeEdit.Text, tsPascal, nil);
       BuildPascalSource2CT('utility.pas', t, tb);
       rProc := CTEditorReturn_Pascal;
     end
   else if DFMstyle_RadioButton.Checked then
     begin
-      t := TTextParsing.Create(CodeEdit.Text, tsPascal);
+      t := TTextParsing.Create(CodeEdit.Text, tsPascal, nil);
       BuildDFMSource2CT('utility.DFM', t, tb);
       rProc := CTEditorReturn_DFM;
     end
@@ -463,8 +464,12 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn, TEncoding.UTF8);
-  t := TTextParsing.Create(ns.Text, tsPascal);
+  try
+      ns.LoadFromFile(fn, TEncoding.UTF8);
+  except
+      ns.LoadFromFile(fn);
+  end;
+  t := TTextParsing.Create(ns.Text, tsPascal, nil);
 
   BuildPascalSource2CT(umlGetFileName(fn), t, tb);
 
@@ -517,8 +522,12 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn, TEncoding.UTF8);
-  t := TTextParsing.Create(ns.Text, tsC);
+  try
+      ns.LoadFromFile(fn, TEncoding.UTF8);
+  except
+      ns.LoadFromFile(fn);
+  end;
+  t := TTextParsing.Create(ns.Text, tsC, nil);
 
   BuildC_Source2CT(umlGetFileName(fn), t, tb);
 
@@ -557,8 +566,12 @@ var
   t : TTextParsing;
 begin
   ns := TCoreClassStringList.Create;
-  ns.LoadFromFile(fn, TEncoding.UTF8);
-  t := TTextParsing.Create(ns.Text, tsPascal);
+  try
+      ns.LoadFromFile(fn, TEncoding.UTF8);
+  except
+      ns.LoadFromFile(fn);
+  end;
+  t := TTextParsing.Create(ns.Text, tsPascal, nil);
 
   BuildDFMSource2CT(umlGetFileName(fn), t, tb);
 
@@ -573,7 +586,7 @@ var
   pPos: PTextPos;
   p   : PTextTableItem;
 begin
-  t := TTextParsing.Create(code.Text, tsPascal);
+  t := TTextParsing.Create(code.Text, tsPascal, nil);
 
   for j := 0 to t.ParsingData.Cache.TextData.Count - 1 do
     begin
@@ -628,7 +641,7 @@ var
   pPos: PTextPos;
   p   : PTextTableItem;
 begin
-  t := TTextParsing.Create(CodeEdit.Text, tsC);
+  t := TTextParsing.Create(CodeEdit.Text, tsC, nil);
 
   for j := 0 to t.ParsingData.Cache.TextData.Count - 1 do
     begin
@@ -678,7 +691,7 @@ var
   pPos: PTextPos;
   p   : PTextTableItem;
 begin
-  t := TTextParsing.Create(code.Text, tsPascal);
+  t := TTextParsing.Create(code.Text, tsPascal, nil);
 
   for j := 0 to t.ParsingData.Cache.TextData.Count - 1 do
     begin
@@ -744,7 +757,11 @@ begin
   for i := 0 to FileListBox.Items.Count - 1 do
     begin
       ns := TCoreClassStringList.Create;
-      ns.LoadFromFile(FileListBox.Items[i], TEncoding.UTF8);
+      try
+          ns.LoadFromFile(FileListBox.Items[i], TEncoding.UTF8);
+      except
+          ns.LoadFromFile(FileListBox.Items[i]);
+      end;
 
       if umlMultipleMatch(['*.pas', '*.inc', '*.dpr'], FileListBox.Items[i]) then
         begin
