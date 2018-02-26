@@ -608,7 +608,7 @@ procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObje
 type
   PtempRec = ^TtempRec;
 
-  TtempRec = record
+  TtempRec = packed record
     p: PTextTableItem;
     itmIndex: Integer;
     Index: Integer;
