@@ -624,7 +624,7 @@ begin
       end;
 
   t.RebuildText;
-  code.Text := t.TextData.Text;
+  code.Text := t.ParsingData.Text;
 
   DisposeObject(t);
 end;
@@ -679,7 +679,7 @@ begin
       end;
 
   t.RebuildText;
-  CodeEdit.Text := t.TextData.Text;
+  CodeEdit.Text := t.ParsingData.Text;
 
   DisposeObject(t);
 end;
@@ -708,7 +708,7 @@ begin
     end;
 
   t.RebuildText;
-  code.Text := t.TextData.Text;
+  code.Text := t.ParsingData.Text;
 
   DisposeObject(t);
 end;

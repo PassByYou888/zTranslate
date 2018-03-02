@@ -11,7 +11,7 @@ uses
   System.Math,
 
   TextTable, DataFrameEngine, CoreClasses, ListEngine, DoStatusIO, MemoryStream64,
-  UnicodeMixedLib, QuickTranslateFrm, TextParsing, PascalStrings, LogFrm;
+  Geometry2DUnit, UnicodeMixedLib, QuickTranslateFrm, TextParsing, PascalStrings, LogFrm;
 
 type
   TEditorReturnProc = procedure(tb: TTextTable) of object;
@@ -399,14 +399,25 @@ begin
   Result := 0;
 end;
 
-function CompText(t1, t2: TPascalString): Integer; inline;
+function CompText(const t1, t2: TPascalString): Integer; inline;
+var
+  d         : Double;
+  same, diff: Integer;
 begin
   Result := cv(WasWide(@t1), WasWide(@t2));
   if Result = 0 then
     begin
       Result := cv(Length(t1), Length(t2));
       if Result = 0 then
-          Result := CompareText(t1, t2);
+        begin
+          d := SmithWatermanCompareLongString(t1, t2, same, diff);
+          if (d >= 0.5) and (diff < 5) then
+              Result := 0
+          else if (d > 0.3) and (diff < 10) then
+              Result := -1
+          else
+              Result := CompareText(t1, t2);
+        end;
     end;
 end;
 
@@ -414,7 +425,6 @@ function LV_Sort1(lParam1, lParam2, lParamSort: LPARAM): Integer; stdcall;
 var
   itm1, itm2: TListItem;
 begin
-
   itm1 := TListItem(lParam1);
   itm2 := TListItem(lParam2);
   try
@@ -434,12 +444,15 @@ var
 begin
   itm1 := TListItem(lParam1);
   itm2 := TListItem(lParam2);
-  if lParamSort = 0 then
-      Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
-  else if lParamSort = 1 then
-      Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
-  else
-      Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+  try
+    if lParamSort = 0 then
+        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
+    else if lParamSort = 1 then
+        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
+    else
+        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+  except
+  end;
 end;
 
 procedure TStrippedContextForm.ContextListColumnClick(Sender: TObject; Column: TListColumn);
