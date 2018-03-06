@@ -409,15 +409,7 @@ begin
     begin
       Result := cv(Length(t1), Length(t2));
       if Result = 0 then
-        begin
-          d := SmithWatermanCompareLongString(t1, t2, same, diff);
-          if (d >= 0.5) and (diff < 5) then
-              Result := 0
-          else if (d > 0.3) and (diff < 10) then
-              Result := -1
-          else
-              Result := CompareText(t1, t2);
-        end;
+          Result := CompareText(t1, t2);
     end;
 end;
 
