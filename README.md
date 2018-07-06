@@ -142,20 +142,9 @@ lazarus的.lfm支持
 ![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
 
 
-## 特别说明
-
-因为曾经我让谢顿帮我提交到git去做二次开发，但是他一字不改，在半年时间中零次维护，请大家不要再支持谢顿这个项目
-
-https://github.com/zhaoyipeng/DelphiTextTranslate
-
-## 支持作者
-
-
-**如果你支持zTranslate开发，请向作者捐款，希望捐赠后能留下真实姓名和联系方式，开发建议请发至作者邮箱** [600585@qq.com](mailto:600585@qq.com "600585@qq.com")
-
-![](alipay.jpg)
-
 请不要直接联系作者
 
 使用zExpression有疑问请加互助qq群490269542，
 
+by.qq600585
+2018-2
