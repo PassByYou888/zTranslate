@@ -14,7 +14,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
-    procedure DoStatusMethod(AText: SystemString; const ID: integer);
+    procedure DoStatusMethod(AText: SystemString; const ID: Integer);
     { Private declarations }
   public
     { Public declarations }
@@ -28,7 +28,7 @@ implementation
 {$R *.dfm}
 
 
-procedure TLogForm.DoStatusMethod(AText: SystemString; const ID: integer);
+procedure TLogForm.DoStatusMethod(AText: SystemString; const ID: Integer);
 begin
   if not Visible then
       show;
@@ -51,4 +51,4 @@ begin
   DeleteDoStatusHook(Self);
 end;
 
-end.
+end. 

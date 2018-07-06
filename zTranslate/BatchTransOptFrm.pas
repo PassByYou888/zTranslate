@@ -15,7 +15,7 @@ type
     DoExecuteButton: TButton;
     UsedCacheWithZDBCheckBox: TCheckBox;
     WorkModeRadioGroup: TRadioGroup;
-    procedure FormKeyUp(Sender: TObject; var Key: Word;
+    procedure FormKeyUp(Sender: TObject; var key: Word;
       Shift: TShiftState);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
@@ -38,11 +38,11 @@ begin
   Action := caHide;
 end;
 
-procedure TBatchTransOptForm.FormKeyUp(Sender: TObject; var Key: Word;
+procedure TBatchTransOptForm.FormKeyUp(Sender: TObject; var key: Word;
   Shift: TShiftState);
 begin
-  if Key = VK_ESCAPE then
-    close;
+  if key = VK_ESCAPE then
+    Close;
 end;
 
-end.
+end. 

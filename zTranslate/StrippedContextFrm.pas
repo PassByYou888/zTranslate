@@ -14,7 +14,7 @@ uses
   Geometry2DUnit, UnicodeMixedLib, QuickTranslateFrm, TextParsing, PascalStrings, LogFrm;
 
 type
-  TEditorReturnProc = procedure(tb: TTextTable) of object;
+  TEditorReturnProc = procedure(TB: TTextTable) of object;
 
   TStrippedContextForm = class(TForm)
     ToolWindowMainMenu: TMainMenu;
@@ -62,7 +62,7 @@ type
     TopSplitter: TSplitter;
     ShowOriginContextAction: TAction;
     ShowOrigincontext1: TMenuItem;
-    N3: TMenuItem;
+    n3: TMenuItem;
     N4: TMenuItem;
     ShowOrigincontext2: TMenuItem;
     RestoreTranslationOriginAction: TAction;
@@ -135,7 +135,7 @@ type
     procedure TestActionExecute(Sender: TObject);
     procedure ContextListColumnClick(Sender: TObject; Column: TListColumn);
     procedure ContextListItemChecked(Sender: TObject; Item: TListItem);
-    procedure ContextListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure ContextListSelectItem(Sender: TObject; Item: TListItem; selected: Boolean);
     procedure CategoryListItemChecked(Sender: TObject; Item: TListItem);
     procedure RestoreTranslationOriginActionExecute(Sender: TObject);
     procedure QuickTranslateActionExecute(Sender: TObject);
@@ -150,18 +150,18 @@ type
     procedure NoDialogBatchTranslateActionExecute(Sender: TObject);
     procedure BatchTranslateActionExecute(Sender: TObject);
     procedure DoFilterButtonClick(Sender: TObject);
-    procedure FilterEditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FilterEditKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
     procedure UndoActionExecute(Sender: TObject);
   private
-    FTextData        : TTextTable;
-    FOpenListItm     : TListItem;
-    FOpenPtr         : PTextTableItem;
-    FOpenPtrIsModify : Boolean;
-    FOnReturnProc    : TEditorReturnProc;
+    FTextData: TTextTable;
+    FOpenListItm: TListItem;
+    FOpenPtr: PTextTableItem;
+    FOpenPtrIsModify: Boolean;
+    FOnReturnProc: TEditorReturnProc;
     FCategoryHashList: THashObjectList;
 
-    function GetOpenEditorOriginText(p: PTextTableItem): umlString;
-    function GetOpenEditorDefineText(p: PTextTableItem): umlString;
+    function GetOpenEditorOriginText(p: PTextTableItem): U_String;
+    function GetOpenEditorDefineText(p: PTextTableItem): U_String;
 
     procedure OpenTextEditor(p: PTextTableItem; itm: TListItem);
     procedure SaveTextEditor;
@@ -172,10 +172,10 @@ type
     procedure LoadNewCTFromStream(m64: TMemoryStream64);
     procedure NewCT;
 
-    function ExistsCategory(c: string): Boolean;
-    function CategoryIsSelected(c: string): Boolean;
+    function ExistsCategory(C: string): Boolean;
+    function CategoryIsSelected(C: string): Boolean;
 
-    procedure RefreshTextList(rebuild: Boolean);
+    procedure RefreshTextList(Rebuild: Boolean);
     procedure Clear;
     property TextData: TTextTable read FTextData;
 
@@ -229,7 +229,7 @@ var
   m64: TMemoryStream64;
 begin
   if not SaveDialog.Execute then
-      exit;
+      Exit;
   m64 := TMemoryStream64.Create;
   FTextData.SaveToStream(m64);
   m64.SaveToFile(SaveDialog.FileName);
@@ -241,7 +241,7 @@ var
   m64: TMemoryStream64;
 begin
   if not OpenDialog.Execute then
-      exit;
+      Exit;
   m64 := TMemoryStream64.Create;
   m64.LoadFromFile(OpenDialog.FileName);
   m64.Position := 0;
@@ -256,7 +256,7 @@ var
   m64: TMemoryStream64;
 begin
   if not OpenTextDialog.Execute then
-      exit;
+      Exit;
   m64 := TMemoryStream64.Create;
   m64.LoadFromFile(OpenTextDialog.FileName);
   m64.Position := 0;
@@ -269,7 +269,7 @@ var
   m64: TMemoryStream64;
 begin
   if not SaveTextDialog.Execute then
-      exit;
+      Exit;
   m64 := TMemoryStream64.Create;
   FTextData.ExportToTextStream(m64);
   m64.SaveToFile(SaveTextDialog.FileName);
@@ -298,7 +298,7 @@ begin
       for i := 0 to CategoryList.Items.Count - 1 do
         begin
           with CategoryList.Items[i] do
-              Selected := not Selected;
+              selected := not selected;
         end;
     end
   else
@@ -306,7 +306,7 @@ begin
       for i := 0 to ContextList.Items.Count - 1 do
         begin
           with ContextList.Items[i] do
-              Selected := not Selected;
+              selected := not selected;
         end;
     end;
 
@@ -321,7 +321,7 @@ begin
       for i := 0 to CategoryList.Items.Count - 1 do
         begin
           with CategoryList.Items[i] do
-            if Selected then
+            if selected then
                 Checked := True;
         end;
     end
@@ -330,7 +330,7 @@ begin
       for i := 0 to ContextList.Items.Count - 1 do
         begin
           with ContextList.Items[i] do
-            if Selected then
+            if selected then
                 Checked := True;
         end;
     end;
@@ -345,7 +345,7 @@ begin
       for i := 0 to CategoryList.Items.Count - 1 do
         begin
           with CategoryList.Items[i] do
-            if Selected then
+            if selected then
                 Checked := False;
         end;
     end
@@ -354,7 +354,7 @@ begin
       for i := 0 to ContextList.Items.Count - 1 do
         begin
           with ContextList.Items[i] do
-            if Selected then
+            if selected then
                 Checked := False;
         end;
     end;
@@ -375,45 +375,45 @@ begin
   FTextData.ExportToTextStream(m64);
   m64.Position := 0;
   FTextData.ImportFromTextStream(m64);
-  m64.free;
+  m64.Free;
   RefreshTextList(True);
 end;
 
-function cv(const A, B: Integer): Integer; inline;
+function cv(const A, b: Integer): Integer; inline;
 begin
-  if A = B then
+  if A = b then
       Result := 0
-  else if A < B then
+  else if A < b then
       Result := -1
   else
       Result := 1;
 end;
 
-function WasWide(t: PPascalString): Byte; inline;
+function WasWide(T: PPascalString): Byte; inline;
 var
-  c: SystemChar;
+  C: SystemChar;
 begin
-  for c in t^.Buff do
-    if Ord(c) > $FF then
-        exit(1);
+  for C in T^.buff do
+    if Ord(C) > 127 then
+        Exit(1);
   Result := 0;
 end;
 
 function CompText(const t1, t2: TPascalString): Integer; inline;
 var
-  d         : Double;
-  same, diff: Integer;
+  d: Double;
+  Same, Diff: Integer;
 begin
   Result := cv(WasWide(@t1), WasWide(@t2));
   if Result = 0 then
     begin
-      Result := cv(Length(t1), Length(t2));
+      Result := cv(length(t1), length(t2));
       if Result = 0 then
           Result := CompareText(t1, t2);
     end;
 end;
 
-function LV_Sort1(lParam1, lParam2, lParamSort: LPARAM): Integer; stdcall;
+function LV_Sort1(lParam1, lParam2, lParamSort: LParam): Integer; stdcall;
 var
   itm1, itm2: TListItem;
 begin
@@ -430,7 +430,7 @@ begin
   end;
 end;
 
-function LV_Sort2(lParam2, lParam1, lParamSort: LPARAM): Integer; stdcall;
+function LV_Sort2(lParam2, lParam1, lParamSort: LParam): Integer; stdcall;
 var
   itm1, itm2: TListItem;
 begin
@@ -452,9 +452,9 @@ var
   i: Integer;
 begin
   // reset other sort column
-  for i := 0 to ContextList.Columns.Count - 1 do
-    if ContextList.Columns[i] <> Column then
-        ContextList.Columns[i].Tag := 0;
+  for i := 0 to ContextList.columns.Count - 1 do
+    if ContextList.columns[i] <> Column then
+        ContextList.columns[i].Tag := 0;
 
   // imp sort
   if Column.Tag = 0 then
@@ -477,11 +477,11 @@ begin
   p^.Picked := Item.Checked;
 end;
 
-procedure TStrippedContextForm.ContextListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+procedure TStrippedContextForm.ContextListSelectItem(Sender: TObject; Item: TListItem; selected: Boolean);
 var
   p: PTextTableItem;
 begin
-  if (ContextList.SelCount = 1) and (Selected) then
+  if (ContextList.SelCount = 1) and (selected) then
     begin
       p := Item.Data;
       OpenTextEditor(p, Item);
@@ -500,7 +500,7 @@ var
   p: PTextTableItem;
 begin
   if MessageDlg('After the operation cannot be recovered, do you continue?', mtWarning, [mbYes, mbNo], 0) <> mrYes then
-      exit;
+      Exit;
   for i := 0 to FTextData.Count - 1 do
     begin
       p := FTextData[i];
@@ -519,9 +519,9 @@ begin
   if not QuickTranslateForm.Visible then
     begin
       QuickTranslateForm.PopupParent := Self;
-      QuickTranslateForm.Show;
+      QuickTranslateForm.show;
     end;
-  Activate;
+  activate;
 end;
 
 procedure TStrippedContextForm.FormCloseQuery(Sender: TObject;
@@ -534,25 +534,25 @@ end;
 
 procedure TStrippedContextForm.EditorReturnActionExecute(Sender: TObject);
 var
-  i : Integer;
-  tb: TTextTable;
+  i: Integer;
+  TB: TTextTable;
 begin
   CloseBaiduTranslate;
 
-  tb := TTextTable.Create;
+  TB := TTextTable.Create;
   for i := 0 to FTextData.Count - 1 do
     if FTextData[i]^.Picked then
-        tb.AddCopy(FTextData[i]^);
+        TB.AddCopy(FTextData[i]^);
 
   if Assigned(FOnReturnProc) then
     begin
       try
-          FOnReturnProc(tb);
+          FOnReturnProc(TB);
       except
       end;
     end;
 
-  DisposeObject(tb);
+  DisposeObject(TB);
 
   Close;
 end;
@@ -568,7 +568,7 @@ var
   p: PTextTableItem;
 begin
   for i := 0 to ContextList.Items.Count - 1 do
-    if ContextList.Items[i].Selected then
+    if ContextList.Items[i].selected then
       begin
         p := ContextList.Items[i].Data;
         p^.DefineText := p^.OriginText;
@@ -622,14 +622,14 @@ type
   function DoAllowed(itm: TListItem): Boolean; inline;
   begin
     case BatchTransOptForm.WorkModeRadioGroup.ItemIndex of
-      0: Result := itm.Selected; // selected
+      0: Result := itm.selected; // selected
       1: Result := itm.Checked;  // picked
       else Result := True;
     end;
   end;
 
 var
-  i : Integer;
+  i: Integer;
   p1: PtempRec;
 begin
   CloseBaiduTranslate;
@@ -663,13 +663,13 @@ begin
                     if ContextList.SelCount > 1 then
                         ContextList.ClearSelection
                     else if ContextList.SelCount = 1 then
-                        ContextList.Selected.Selected := False;
+                        ContextList.selected.selected := False;
 
-                    itm.Selected := True;
+                    itm.selected := True;
                     itm.MakeVisible(True);
                   end;
               end;
-            dispose(p2);
+            Dispose(p2);
           end);
       end;
 end;
@@ -677,11 +677,11 @@ end;
 procedure TStrippedContextForm.BatchTranslateActionExecute(
   Sender: TObject);
 begin
-  if BatchTransOptForm.ShowModal = mrOk then
+  if BatchTransOptForm.ShowModal = mrOK then
       NoDialogBatchTranslateAction.Execute;
 end;
 
-function TStrippedContextForm.GetOpenEditorOriginText(p: PTextTableItem): umlString;
+function TStrippedContextForm.GetOpenEditorOriginText(p: PTextTableItem): U_String;
 begin
   case p^.TextStyle of
     tsPascalText: Result := TTextParsing.TranslatePascalDeclToText(p^.OriginText);
@@ -695,7 +695,7 @@ begin
       Result.DeleteLast;
 end;
 
-function TStrippedContextForm.GetOpenEditorDefineText(p: PTextTableItem): umlString;
+function TStrippedContextForm.GetOpenEditorDefineText(p: PTextTableItem): U_String;
 begin
   case p^.TextStyle of
     tsPascalText: Result := TTextParsing.TranslatePascalDeclToText(p^.DefineText);
@@ -711,7 +711,7 @@ end;
 
 procedure TStrippedContextForm.OpenTextEditor(p: PTextTableItem; itm: TListItem);
 var
-  n: umlString;
+  n: U_String;
 begin
   if FOpenPtrIsModify and (FOpenPtr <> nil) then
     begin
@@ -729,18 +729,18 @@ begin
   CodeEdit.Text := Format('//Origin:' + #13#10 + '%s' + #13#10#13#10 + '//Defined:' + #13#10 + '%s', [FOpenPtr^.OriginText, FOpenPtr^.DefineText]);
 end;
 
-procedure TStrippedContextForm.FilterEditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TStrippedContextForm.FilterEditKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
 begin
-  if Key = VK_RETURN then
+  if key = VK_RETURN then
       DoFilterButtonClick(DoFilterButton);
 end;
 
 procedure TStrippedContextForm.SaveTextEditor;
 var
-  n: umlString;
+  n: U_String;
 begin
   if FOpenPtr = nil then
-      exit;
+      Exit;
 
   n := DefineMemo.Text;
   while (n.Len > 0) and (CharIn(n.Last, [#13, #10])) do
@@ -799,25 +799,25 @@ begin
   RefreshTextList(True);
 end;
 
-function TStrippedContextForm.ExistsCategory(c: string): Boolean;
+function TStrippedContextForm.ExistsCategory(C: string): Boolean;
 begin
-  Result := FCategoryHashList.Exists(c);
+  Result := FCategoryHashList.Exists(C);
 end;
 
-function TStrippedContextForm.CategoryIsSelected(c: string): Boolean;
+function TStrippedContextForm.CategoryIsSelected(C: string): Boolean;
 var
   categoryItm: TListItem;
 begin
-  categoryItm := TListItem(FCategoryHashList[c]);
+  categoryItm := TListItem(FCategoryHashList[C]);
   Result := (categoryItm <> nil) and (categoryItm.Checked);
 end;
 
-procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
-  function Match(p: PTextTableItem; s1, s2: umlString): Boolean; inline;
+procedure TStrippedContextForm.RefreshTextList(Rebuild: Boolean);
+  function match(p: PTextTableItem; s1, s2: U_String): Boolean; inline;
   begin
     Result := True;
     if s1.Len = 0 then
-        exit;
+        Exit;
 
     if CharIn(s1.First, [':']) then
       begin
@@ -826,7 +826,7 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
         if (s1.Len > 0) and (CharIn(s1.First, [':'])) then
           begin
             Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
-            exit;
+            Exit;
           end;
 
         if p^.Picked then
@@ -841,7 +841,7 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
         if (s1.Len > 0) and (CharIn(s1.First, ['/'])) then
           begin
             Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
-            exit;
+            Exit;
           end;
 
         if p^.TextStyle in [tsPascalComment, tsCComment] then
@@ -856,7 +856,7 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
         if (s1.Len > 0) and (CharIn(s1.First, ['"'])) then
           begin
             Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
-            exit;
+            Exit;
           end;
 
         if p^.TextStyle in [tsPascalText, tsCText, tsNormalText, tsDFMText] then
@@ -871,7 +871,7 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
         if (s1.Len > 0) and (CharIn(s1.First, ['#'])) then
           begin
             Result := (s2.GetPos(s1) > 0) or umlMultipleMatch(s1, s2);
-            exit;
+            Exit;
           end;
 
         if p^.TextStyle in [tsDFMText] then
@@ -884,12 +884,12 @@ procedure TStrippedContextForm.RefreshTextList(rebuild: Boolean);
   end;
 
 var
-  i          : Integer;
-  p          : PTextTableItem;
-  itm        : TListItem;
+  i: Integer;
+  p: PTextTableItem;
+  itm: TListItem;
   categoryItm: TListItem;
-  hlst       : THashObjectList;
-  ori, def, n: umlString;
+  hlst: THashObjectList;
+  ori, def, n: U_String;
 begin
   FOpenListItm := nil;
   FOpenPtr := nil;
@@ -901,14 +901,14 @@ begin
 
   ContextList.OnItemChecked := nil;
   CategoryList.OnItemChecked := nil;
-  if rebuild then
+  if Rebuild then
       CategoryList.Items.BeginUpdate;
 
   ContextList.Items.BeginUpdate;
 
   hlst := THashObjectList.Create(False, 32768);
 
-  if rebuild then
+  if Rebuild then
     begin
       CategoryList.Items.Clear;
       FCategoryHashList.Clear;
@@ -918,7 +918,7 @@ begin
     begin
       p := FTextData[i];
 
-      if rebuild then
+      if Rebuild then
         if not ExistsCategory(umlDeleteChar(p^.Category, #13#10)) then
           begin
             categoryItm := CategoryList.Items.Add;
@@ -935,7 +935,7 @@ begin
           begin
             ori := umlDeleteChar(GetOpenEditorOriginText(p), #13#10);
             def := umlDeleteChar(GetOpenEditorDefineText(p), #13#10);
-            if (Match(p, OriginFilterEdit.Text, ori)) and (Match(p, DefineFilterEdit.Text, def)) then
+            if (match(p, OriginFilterEdit.Text, ori)) and (match(p, DefineFilterEdit.Text, def)) then
               begin
                 itm := ContextList.Items.Add;
                 hlst.Add(p^.OriginText, itm);
@@ -971,7 +971,7 @@ begin
 
   ContextList.Items.EndUpdate;
 
-  if rebuild then
+  if Rebuild then
       CategoryList.Items.EndUpdate;
   ContextList.OnItemChecked := ContextListItemChecked;
   CategoryList.OnItemChecked := CategoryListItemChecked;
@@ -986,9 +986,9 @@ end;
 procedure TStrippedContextForm.SetCurrentTranslate(Text: string);
 begin
   if FOpenPtr = nil then
-      exit;
+      Exit;
   DefineMemo.Text := Text;
   SaveTextEditor;
 end;
 
-end.
+end. 

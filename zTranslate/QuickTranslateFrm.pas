@@ -34,7 +34,7 @@ type
     FixedDest3Button: TButton;
     TranslateButton: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
     procedure UsedSourButtonClick(Sender: TObject);
     procedure UsedDest1ButtonClick(Sender: TObject);
     procedure UsedDest2ButtonClick(Sender: TObject);
@@ -65,10 +65,10 @@ begin
   Action := caHide;
 end;
 
-procedure TQuickTranslateForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TQuickTranslateForm.FormKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
 begin
-  case Key of
-    VK_Escape: close;
+  case key of
+    VK_ESCAPE: Close;
     VK_F1: StrippedContextForm.UsesSourAction.Execute;
     VK_F2: StrippedContextForm.UsesDest1Action.Execute;
     VK_F3: StrippedContextForm.UsesDest2Action.Execute;
@@ -79,25 +79,25 @@ end;
 procedure TQuickTranslateForm.UsedSourButtonClick(Sender: TObject);
 begin
   StrippedContextForm.SetCurrentTranslate(SourMemo.Text);
-  close;
+  Close;
 end;
 
 procedure TQuickTranslateForm.UsedDest1ButtonClick(Sender: TObject);
 begin
   StrippedContextForm.SetCurrentTranslate(Dest1Memo.Text);
-  close;
+  Close;
 end;
 
 procedure TQuickTranslateForm.UsedDest2ButtonClick(Sender: TObject);
 begin
   StrippedContextForm.SetCurrentTranslate(Dest2Memo.Text);
-  close;
+  Close;
 end;
 
 procedure TQuickTranslateForm.UsedDest3ButtonClick(Sender: TObject);
 begin
   StrippedContextForm.SetCurrentTranslate(Dest3Memo.Text);
-  close;
+  Close;
 end;
 
 procedure TQuickTranslateForm.FixedDest1ButtonClick(Sender: TObject);
@@ -149,13 +149,13 @@ procedure TQuickTranslateForm.Translate;
 var
   sour: TPascalString;
 begin
-  Dest1Label.Font.Color := clRed;
+  Dest1Label.Font.COLOR := clRed;
   Dest1Label.Caption := 'Processing...';
 
-  Dest2Label.Font.Color := clRed;
+  Dest2Label.Font.COLOR := clRed;
   Dest2Label.Caption := 'Processing...';
 
-  Dest3Label.Font.Color := clRed;
+  Dest3Label.Font.COLOR := clRed;
   Dest3Label.Caption := 'Processing...';
 
   sour := SourMemo.Text;
@@ -170,13 +170,13 @@ begin
       else
           Dest1Memo.Text := '!error!';
 
-      Dest1Label.Font.Color := clGreen;
+      Dest1Label.Font.COLOR := clGreen;
       Dest1Label.Caption := 'Finished...';
 
       if Dest2ComboBox.ItemIndex = Dest1ComboBox.ItemIndex then
         begin
           Dest2Memo.Text := Dest1Memo.Text;
-          Dest2Label.Font.Color := clGreen;
+          Dest2Label.Font.COLOR := clGreen;
           Dest2Label.Caption := 'Finished...';
         end
       else
@@ -188,20 +188,20 @@ begin
             else
                 Dest2Memo.Text := '!error!';
 
-            Dest2Label.Font.Color := clGreen;
+            Dest2Label.Font.COLOR := clGreen;
             Dest2Label.Caption := 'Finished...';
           end);
 
       if Dest3ComboBox.ItemIndex = Dest1ComboBox.ItemIndex then
         begin
           Dest3Memo.Text := Dest1Memo.Text;
-          Dest3Label.Font.Color := clGreen;
+          Dest3Label.Font.COLOR := clGreen;
           Dest3Label.Caption := 'Finished...';
         end
       else if Dest3ComboBox.ItemIndex = Dest2ComboBox.ItemIndex then
         begin
           Dest3Memo.Text := Dest2Memo.Text;
-          Dest3Label.Font.Color := clGreen;
+          Dest3Label.Font.COLOR := clGreen;
           Dest3Label.Caption := 'Finished...';
         end
       else
@@ -212,7 +212,7 @@ begin
                 Dest3Memo.Text := dest
             else
                 Dest3Memo.Text := '!error!';
-            Dest3Label.Font.Color := clGreen;
+            Dest3Label.Font.COLOR := clGreen;
             Dest3Label.Caption := 'Finished...';
           end);
     end);
@@ -223,4 +223,4 @@ begin
   Translate;
 end;
 
-end.
+end. 
