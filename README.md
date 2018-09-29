@@ -45,16 +45,6 @@ java工程尚未支持
 
 
 
-## 核心思路
-
-zTranslate是做来给国内本土开源圈使用的项目，翻译引擎主要借助百度在线翻译，翻译引擎不支持google，但是将来会支持有道
-
-zTranslate非常依赖zServer4D开源工程，从词法到符号处理，再到服务器桥接，全部基于zServer4D做的二次开发
-
-zTranslate的所有介绍，帮助文档，只支持中文
-
-
-
 ## 编译
 
 编译zTranslate编译需要zServer4D的主工程支持
@@ -69,7 +59,9 @@ zTranslate的所有介绍，帮助文档，只支持中文
 
 
 
-## 操作
+## 使用
+
+**注意：百度翻译需要修改配置baidu.cfg，打开该文件以后，根据指引操作即可**
 
 
 [国际化开源项目的操作指南](https://github.com/PassByYou888/zTranslate/blob/master/Document/%E4%BD%BF%E7%94%A8zTranslate%E5%B0%86%E6%9C%AC%E5%9C%9F%E9%A1%B9%E7%9B%AE%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%8D%A2%E4%B8%BA%E5%9B%BD%E9%99%85%E9%A1%B9%E7%9B%AE.pdf)
