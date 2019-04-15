@@ -195,7 +195,7 @@ uses BatchTransOptFrm, BaiduTranslateClient, zTranslateMainFrm;
 procedure TStrippedContextForm.FormCreate(Sender: TObject);
 begin
   FTextData := TTextTable.Create;
-  FCategoryHashList := THashObjectList.Create(False, 8192);
+  FCategoryHashList := THashObjectList.CustomCreate(False, 8192);
   FOnReturnProc := nil;
 end;
 
@@ -906,7 +906,7 @@ begin
 
   ContextList.Items.BeginUpdate;
 
-  hlst := THashObjectList.Create(False, 32768);
+  hlst := THashObjectList.CustomCreate(False, 32768);
 
   if Rebuild then
     begin
