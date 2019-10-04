@@ -118,7 +118,7 @@ begin
   ProgressBackgroundProc := GlobalProgressBackgroundProc;
 
   config := TSectionTextData.Create;
-  fn := umlCombineFileName(TPath.GetDocumentsPath, 'BuildCode.cfg');
+  fn := umlCombineFileName(TPath.GetDocumentsPath, 'zTranslate.cfg');
   if TFile.Exists(fn) then
     begin
       config.LoadFromFile(fn);
@@ -151,7 +151,7 @@ var
   fn: string;
   en: U_String;
 begin
-  fn := umlCombineFileName(TPath.GetDocumentsPath, 'BuildCode.cfg');
+  fn := umlCombineFileName(TPath.GetDocumentsPath, 'zTranslate.cfg');
   config.Names['Files'].Assign(FileListBox.Items);
 
   config.SetDefaultValue('main', 'UsedOriginDirectory', UsedOriginOutputDirectoryCheckBox.Checked);

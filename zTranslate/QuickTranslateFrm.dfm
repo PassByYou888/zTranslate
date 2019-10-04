@@ -93,7 +93,7 @@ object QuickTranslateForm: TQuickTranslateForm
     Width = 600
     Height = 113
     Lines.Strings = (
-      #20320#22909#19990#30028)
+      'Hello world')
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False

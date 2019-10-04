@@ -185,12 +185,87 @@ type
 var
   StrippedContextForm: TStrippedContextForm;
 
+function cv(const A, b: Integer): Integer; inline;
+function WasWide(T: PPascalString): Byte; inline;
+function CompText(const t1, t2: TPascalString): Integer; inline;
+function LV_Sort1(lParam1, lParam2, lParamSort: LParam): Integer; stdcall;
+function LV_Sort2(lParam2, lParam1, lParamSort: LParam): Integer; stdcall;
+
 implementation
 
 {$R *.dfm}
 
-
 uses BatchTransOptFrm, BaiduTranslateClient, zTranslateMainFrm;
+
+function cv(const A, b: Integer): Integer; inline;
+begin
+  if A = b then
+      Result := 0
+  else if A < b then
+      Result := -1
+  else
+      Result := 1;
+end;
+
+function WasWide(T: PPascalString): Byte; inline;
+var
+  C: SystemChar;
+begin
+  for C in T^.buff do
+    if Ord(C) > 127 then
+        Exit(1);
+  Result := 0;
+end;
+
+function CompText(const t1, t2: TPascalString): Integer; inline;
+var
+  d: Double;
+  Same, Diff: Integer;
+begin
+  Result := cv(WasWide(@t1), WasWide(@t2));
+  if Result = 0 then
+    begin
+      Result := cv(length(t1), length(t2));
+      if Result = 0 then
+          Result := CompareText(t1, t2);
+    end;
+end;
+
+function LV_Sort1(lParam1, lParam2, lParamSort: LParam): Integer; stdcall;
+var
+  itm1, itm2: TListItem;
+begin
+  itm1 := TListItem(lParam1);
+  itm2 := TListItem(lParam2);
+  try
+    if lParamSort = 0 then
+        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
+    else if lParamSort = 1 then
+        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
+    else
+        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+  except
+  end;
+end;
+
+function LV_Sort2(lParam2, lParam1, lParamSort: LParam): Integer; stdcall;
+var
+  itm1, itm2: TListItem;
+begin
+  itm1 := TListItem(lParam1);
+  itm2 := TListItem(lParam2);
+  try
+    if lParamSort = 0 then
+        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
+    else if lParamSort = 1 then
+        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
+    else
+        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
+  except
+  end;
+end;
+
+
 
 procedure TStrippedContextForm.FormCreate(Sender: TObject);
 begin
@@ -379,74 +454,6 @@ begin
   RefreshTextList(True);
 end;
 
-function cv(const A, b: Integer): Integer; inline;
-begin
-  if A = b then
-      Result := 0
-  else if A < b then
-      Result := -1
-  else
-      Result := 1;
-end;
-
-function WasWide(T: PPascalString): Byte; inline;
-var
-  C: SystemChar;
-begin
-  for C in T^.buff do
-    if Ord(C) > 127 then
-        Exit(1);
-  Result := 0;
-end;
-
-function CompText(const t1, t2: TPascalString): Integer; inline;
-var
-  d: Double;
-  Same, Diff: Integer;
-begin
-  Result := cv(WasWide(@t1), WasWide(@t2));
-  if Result = 0 then
-    begin
-      Result := cv(length(t1), length(t2));
-      if Result = 0 then
-          Result := CompareText(t1, t2);
-    end;
-end;
-
-function LV_Sort1(lParam1, lParam2, lParamSort: LParam): Integer; stdcall;
-var
-  itm1, itm2: TListItem;
-begin
-  itm1 := TListItem(lParam1);
-  itm2 := TListItem(lParam2);
-  try
-    if lParamSort = 0 then
-        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
-    else if lParamSort = 1 then
-        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
-    else
-        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
-  except
-  end;
-end;
-
-function LV_Sort2(lParam2, lParam1, lParamSort: LParam): Integer; stdcall;
-var
-  itm1, itm2: TListItem;
-begin
-  itm1 := TListItem(lParam1);
-  itm2 := TListItem(lParam2);
-  try
-    if lParamSort = 0 then
-        Result := cv(StrToInt(itm1.Caption), StrToInt(itm2.Caption))
-    else if lParamSort = 1 then
-        Result := cv(StrToInt(itm1.SubItems[lParamSort - 1]), StrToInt(itm2.SubItems[lParamSort - 1]))
-    else
-        Result := CompText(itm1.SubItems[lParamSort - 1], itm2.SubItems[lParamSort - 1]);
-  except
-  end;
-end;
-
 procedure TStrippedContextForm.ContextListColumnClick(Sender: TObject; Column: TListColumn);
 var
   i: Integer;
@@ -562,23 +569,6 @@ begin
   SaveTextEditor;
 end;
 
-procedure TStrippedContextForm.UndoActionExecute(Sender: TObject);
-var
-  i: Integer;
-  p: PTextTableItem;
-begin
-  for i := 0 to ContextList.Items.Count - 1 do
-    if ContextList.Items[i].selected then
-      begin
-        p := ContextList.Items[i].Data;
-        p^.DefineText := p^.OriginText;
-        p^.Picked := False;
-        OpenTextEditor(p, ContextList.Items[i]);
-        SaveTextEditor;
-        ContextList.Items[i].Checked := False;
-      end;
-end;
-
 procedure TStrippedContextForm.UsesSourActionExecute(Sender: TObject);
 begin
   QuickTranslateForm.UsedSourButtonClick(nil);
@@ -602,11 +592,6 @@ end;
 procedure TStrippedContextForm.DefineMemoChange(Sender: TObject);
 begin
   FOpenPtrIsModify := True;
-end;
-
-procedure TStrippedContextForm.DoFilterButtonClick(Sender: TObject);
-begin
-  RefreshTextList(False);
 end;
 
 procedure TStrippedContextForm.NoDialogBatchTranslateActionExecute(Sender: TObject);
@@ -674,11 +659,38 @@ begin
       end;
 end;
 
-procedure TStrippedContextForm.BatchTranslateActionExecute(
-  Sender: TObject);
+procedure TStrippedContextForm.BatchTranslateActionExecute(Sender: TObject);
 begin
   if BatchTransOptForm.ShowModal = mrOK then
       NoDialogBatchTranslateAction.Execute;
+end;
+
+procedure TStrippedContextForm.DoFilterButtonClick(Sender: TObject);
+begin
+  RefreshTextList(False);
+end;
+
+procedure TStrippedContextForm.FilterEditKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
+begin
+  if key = VK_RETURN then
+      DoFilterButtonClick(DoFilterButton);
+end;
+
+procedure TStrippedContextForm.UndoActionExecute(Sender: TObject);
+var
+  i: Integer;
+  p: PTextTableItem;
+begin
+  for i := 0 to ContextList.Items.Count - 1 do
+    if ContextList.Items[i].selected then
+      begin
+        p := ContextList.Items[i].Data;
+        p^.DefineText := p^.OriginText;
+        p^.Picked := False;
+        OpenTextEditor(p, ContextList.Items[i]);
+        SaveTextEditor;
+        ContextList.Items[i].Checked := False;
+      end;
 end;
 
 function TStrippedContextForm.GetOpenEditorOriginText(p: PTextTableItem): U_String;
@@ -727,12 +739,6 @@ begin
   FOpenPtrIsModify := False;
 
   CodeEdit.Text := Format('//Origin:' + #13#10 + '%s' + #13#10#13#10 + '//Defined:' + #13#10 + '%s', [FOpenPtr^.OriginText, FOpenPtr^.DefineText]);
-end;
-
-procedure TStrippedContextForm.FilterEditKeyUp(Sender: TObject; var key: Word; Shift: TShiftState);
-begin
-  if key = VK_RETURN then
-      DoFilterButtonClick(DoFilterButton);
 end;
 
 procedure TStrippedContextForm.SaveTextEditor;
@@ -991,4 +997,4 @@ begin
   SaveTextEditor;
 end;
 
-end. 
+end.
