@@ -70,6 +70,23 @@ java工程尚未支持
 [校对编辑环境中的Origin Filter和Translateion Filter匹配用法](https://github.com/PassByYou888/zTranslate/blob/master/Document/%E6%A0%A1%E5%AF%B9%E7%BC%96%E8%BE%91%E7%8E%AF%E5%A2%83%E4%B8%AD%E7%9A%84Origin%20Filter%E5%92%8CTranslateion%20Filter%E5%8C%B9%E9%85%8D%E7%94%A8%E6%B3%95.pdf)
 
 
+- ** DFM/FMX格式翻译支持 **
+
+![3](https://github.com/PassByYou888/zTranslate/raw/master/3.JPG)
+
+
+- ** DFM/FMX格式校对工作 **
+
+![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
+
+
+- ** c/shaer/cpp/c#支持 **
+![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
+
+- ** 关于 **
+
+![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
+
 
 ## 更新说明
 
@@ -124,23 +141,8 @@ lazarus的.lfm支持
 
 
 
-- ** DFM/FMX格式翻译支持 **
 
-![3](https://github.com/PassByYou888/zTranslate/raw/master/3.JPG)
-
-
-- ** DFM/FMX格式校对工作 **
-
-![2](https://github.com/PassByYou888/zTranslate/raw/master/2.JPG)
-
-
-- ** c/shaer/cpp/c#支持 **
-![4](https://github.com/PassByYou888/zTranslate/raw/master/4.JPG)
-
-- ** 关于 **
-
-![1](https://github.com/PassByYou888/zTranslate/raw/master/1.jpg)
-
+----------
 
 请不要直接联系作者
 
