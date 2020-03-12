@@ -25,7 +25,6 @@ type
     ImportButton: TButton;
     Label1: TLabel;
     OpenCTDialog: TOpenDialog;
-    OpenDialog: TOpenDialog;
     OutPathEdit: TLabeledEdit;
     CodeTabSheet: TTabSheet;
     CodeToolPanel: TPanel;
@@ -46,7 +45,6 @@ type
     CloseBaiduTSButton: TButton;
     CodeEdit: TMemo;
     AboutTabSheet: TTabSheet;
-    Image1: TImage;
     GplMemo: TMemo;
     Label2: TLabel;
     Label3: TLabel;
@@ -55,6 +53,7 @@ type
     UsedOriginOutputDirectoryCheckBox: TCheckBox;
     PasteCodeButton: TButton;
     copyCodeButton: TButton;
+    OpenDialog: TFileOpenDialog;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure AddButtonClick(Sender: TObject);
@@ -104,7 +103,7 @@ implementation
 {$R *.dfm}
 
 
-uses StrippedContextFrm, LogFrm;
+uses StrippedContextFrm, VCLLogFrm;
 
 procedure GlobalProgressBackgroundProc;
 begin
@@ -335,12 +334,12 @@ end;
 
 procedure TBuildCodeMainForm.StripedToolButtonClick(Sender: TObject);
 begin
+  OpenBaiduTSButtonClick(nil);
+
   StrippedContextForm.OnReturnProc := nil;
   StrippedContextForm.NewCT;
   StrippedContextForm.PopupParent := Self;
   StrippedContextForm.show;
-
-  OpenBaiduTSButtonClick(nil);
 end;
 
 procedure TBuildCodeMainForm.ClearButtonClick(Sender: TObject);

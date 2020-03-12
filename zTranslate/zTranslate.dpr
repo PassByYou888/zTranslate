@@ -4,13 +4,20 @@ uses
   Vcl.Forms,
   BatchTransOptFrm in 'BatchTransOptFrm.pas' {BatchTransOptForm},
   zTranslateMainFrm in 'zTranslateMainFrm.pas' {BuildCodeMainForm},
-  LogFrm in 'LogFrm.pas' {LogForm},
+  VCLLogFrm in 'VCLLogFrm.pas' {LogForm},
   QuickTranslateFrm in 'QuickTranslateFrm.pas' {QuickTranslateForm},
-  StrippedContextFrm in 'StrippedContextFrm.pas' {StrippedContextForm};
+  StrippedContextFrm in 'StrippedContextFrm.pas' {StrippedContextForm},
+  BaiduTranslateClient in '..\zTranslateBaiduService\Client.Lib\BaiduTranslateClient.pas',
+  Vcl.Themes,
+  Vcl.Styles;
+
+{$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  TStyleManager.TrySetStyle('Windows10 Dark');
+  Application.Title := 'zTranslate';
   Application.CreateForm(TBuildCodeMainForm, BuildCodeMainForm);
   Application.CreateForm(TLogForm, LogForm);
   Application.CreateForm(TBatchTransOptForm, BatchTransOptForm);

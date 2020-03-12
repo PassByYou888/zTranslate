@@ -11,7 +11,7 @@ uses
   System.Math,
 
   TextTable, DataFrameEngine, CoreClasses, ListEngine, DoStatusIO, MemoryStream64,
-  Geometry2DUnit, UnicodeMixedLib, QuickTranslateFrm, TextParsing, PascalStrings, LogFrm;
+  Geometry2DUnit, UnicodeMixedLib, QuickTranslateFrm, TextParsing, PascalStrings, VCLLogFrm;
 
 type
   TEditorReturnProc = procedure(TB: TTextTable) of object;
